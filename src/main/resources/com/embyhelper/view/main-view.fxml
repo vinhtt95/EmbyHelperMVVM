@@ -1,14 +1,143 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="$CONTROLLER_NAME$"
-            prefHeight="400.0" prefWidth="600.0" >
+<VBox xmlns="http://javafx.com/javafx/20" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.embyhelper.view.MainView" spacing="10.0">
+    <children>
+        <MenuBar fx:id="menuBar">
+            <menus>
+                <Menu mnemonicParsing="false" text="%menu.file">
+                    <items>
+                        <MenuItem fx:id="logoutMenuItem" mnemonicParsing="false" onAction="#onLogoutClick" text="%menu.file.logout" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="%menu.language">
+                    <items>
+                        <MenuItem fx:id="langMenuItemVI" mnemonicParsing="false" onAction="#onSwitchLanguageVI" text="Tiếng Việt" />
+                        <MenuItem fx:id="langMenuItemEN" mnemonicParsing="false" onAction="#onSwitchLanguageEN" text="English" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
 
-</AnchorPane>
+        <TabPane VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab text="%tab.batch">
+                    <content>
+                        <VBox spacing="15.0">
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </padding>
+                            <children>
+                                <TitledPane fx:id="batchProcessPane" animated="false" text="%pane.batchProcess.title">
+                                    <content>
+                                        <VBox spacing="8.0">
+                                            <Label text="%label.batchProcessParentId" />
+                                            <TextField fx:id="txtBatchProcessParentID" promptText="%prompt.batchProcessParentId" />
+                                            <Button fx:id="btnRunBatchProcess" onAction="#onRunBatchProcessClick" text="%button.batchProcess" />
+                                        </VBox>
+                                    </content>
+                                </TitledPane>
+                                <TitledPane fx:id="exportJsonPane" animated="false" text="%pane.exportJson.title">
+                                    <content>
+                                        <VBox spacing="8.0">
+                                            <Label text="%label.exportJsonParentId" />
+                                            <TextField fx:id="txtExportJsonParentID" promptText="%prompt.exportJsonParentId" />
+                                            <Button fx:id="btnRunExportJson" onAction="#onRunExportJsonClick" text="%button.exportJson" />
+                                        </VBox>
+                                    </content>
+                                </TitledPane>
+                                <TitledPane fx:id="importJsonPane" animated="false" text="%pane.importJson.title">
+                                    <content>
+                                        <VBox spacing="8.0">
+                                            <Label text="%label.importJsonParentId" />
+                                            <TextField fx:id="txtImportJsonParentID" promptText="%prompt.importJsonParentId" />
+                                            <Button fx:id="btnRunImportJson" onAction="#onRunImportJsonClick" text="%button.importJson" />
+                                        </VBox>
+                                    </content>
+                                </TitledPane>
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
+
+                <Tab text="%tab.metadata">
+                    <content>
+                        <VBox spacing="15.0">
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </padding>
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label text="%label.selectType" style="-fx-font-weight: bold;"/>
+                                        <ComboBox fx:id="typeComboBox" prefWidth="150.0" />
+                                    </children>
+                                </HBox>
+                                <TitledPane fx:id="copyPane" animated="false" text="%pane.copy.title">
+                                    <content>
+                                        <VBox spacing="8.0">
+                                            <Label text="%label.copyFromId" />
+                                            <TextField fx:id="txtCopyFromItemID" promptText="%prompt.copyFromId" />
+                                            <Label text="%label.copyToParent" />
+                                            <TextField fx:id="txtCopyToParentID" promptText="%prompt.copyToParent" />
+                                            <Button fx:id="btnRunCopy" onAction="#onRunCopyClick" text="%button.executeCopy" />
+                                        </VBox>
+                                    </content>
+                                </TitledPane>
+                                <TitledPane fx:id="clearParentPane" animated="false" text="%pane.clearParent.title">
+                                    <content>
+                                        <VBox spacing="5.0">
+                                            <Label fx:id="clearParentLabel" text="Loading..." />
+                                            <TextField fx:id="txtClearByParentID" promptText="%prompt.clearParentId" />
+                                            <Button fx:id="btnRunClearParent" onAction="#onRunClearParentClick" text="Loading..." />
+                                        </VBox>
+                                    </content>
+                                </TitledPane>
+                                <TitledPane fx:id="clearSpecificPane" animated="false" text="%pane.clearSpecific.title" VBox.vgrow="ALWAYS">
+                                    <content>
+                                        <VBox spacing="8.0">
+                                            <Label fx:id="clearSpecificLabel" text="Loading..." />
+                                            <HBox spacing="10.0">
+                                                <TextField fx:id="searchField" promptText="%prompt.search" HBox.hgrow="ALWAYS"/>
+                                                <Button fx:id="btnReloadList" onAction="#onReloadListClick" text="%button.reloadList"/>
+                                            </HBox>
+                                            <ScrollPane fx:id="selectionScrollPane" fitToWidth="true" styleClass="scroll-pane" VBox.vgrow="ALWAYS">
+                                                <content>
+                                                    <FlowPane fx:id="selectionFlowPane" hgap="8.0" vgap="8.0">
+                                                        <padding><Insets top="5.0" bottom="5.0" left="5.0" right="5.0"/></padding>
+                                                    </FlowPane>
+                                                </content>
+                                            </ScrollPane>
+                                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                <children>
+                                                    <Button fx:id="btnRunClearSpecific" onAction="#onRunClearSpecificClick" text="Loading..." />
+                                                    <Button fx:id="btnRunUpdateSpecific" onAction="#onRunUpdateSpecificClick" text="Loading..." />
+                                                </children>
+                                            </HBox>
+                                        </VBox>
+                                    </content>
+                                </TitledPane>
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+
+        <HBox fx:id="statusBar" alignment="CENTER_LEFT" spacing="10.0" styleClass="status-bar">
+            <padding>
+                <Insets bottom="5.0" left="10.0" right="10.0" top="5.0"/>
+            </padding>
+            <children>
+                <Label fx:id="statusLabel" text="%status.ready" HBox.hgrow="ALWAYS"/>
+                <ProgressIndicator fx:id="statusIndicator" maxHeight="20.0" maxWidth="20.0" visible="false"/>
+            </children>
+            <VBox.margin>
+                <Insets top="5.0"/>
+            </VBox.margin>
+        </HBox>
+    </children>
+</VBox>

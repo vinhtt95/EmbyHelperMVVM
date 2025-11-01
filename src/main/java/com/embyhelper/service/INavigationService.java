@@ -1,4 +1,10 @@
 package com.embyhelper.service;
 
-public class INavigationService {
+import javafx.stage.Stage;
+
+public interface INavigationService {
+    void setPrimaryStage(Stage stage);
+    void showLoginView();
+    void showMainView(String userId);
+    void restartApplication();
 }

@@ -1,4 +1,9 @@
 package com.embyhelper.service;
 
-public class ILocalizationService {
+import java.util.ResourceBundle;
+
+public interface ILocalizationService {
+    ResourceBundle getBundle();
+    String getString(String key);
+    void switchLanguage(String langCode);
 }
