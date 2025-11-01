@@ -36,7 +36,8 @@ public class BatchProcessUseCase {
         progressCallback.accept("Đang lấy danh sách item từ Parent ID: " + parentId);
 
         // Lấy các item thuộc loại Movie
-        List<BaseItemDto> itemsToProcess = embyRepo.getItemsByParentId(parentId, null, null, true, "Movie");
+
+        List<BaseItemDto> itemsToProcess = embyRepo.getItemsByParentId(parentId, null, null, true, "Movie", null);
         if (itemsToProcess == null || itemsToProcess.isEmpty()) {
             progressCallback.accept("Không tìm thấy item con nào (Movie) trong Parent ID: " + parentId);
             return result;

@@ -45,7 +45,7 @@ public class GenreStrategy implements IMetadataStrategy {
         List<NameLongIdPair> genresToCopy = itemCopy.getGenreItems();
         if (genresToCopy == null) return;
 
-        List<BaseItemDto> listPaste = repo.getItemsByParentId(toId, null, null, true, "Movie,Series,Video,Game,MusicAlbum");
+        List<BaseItemDto> listPaste = repo.getItemsByParentId(toId, null, null, true, "Movie,Series,Video,Game,MusicAlbum",null);
         if (listPaste == null) return;
 
         for (BaseItemDto stub : listPaste) {
@@ -60,7 +60,7 @@ public class GenreStrategy implements IMetadataStrategy {
 
     @Override
     public void clearByParent(IEmbyRepository repo, String parentId) {
-        List<BaseItemDto> listItems = repo.getItemsByParentId(parentId, null, null, true, "Movie,Series,Video,Game,MusicAlbum");
+        List<BaseItemDto> listItems = repo.getItemsByParentId(parentId, null, null, true, "Movie,Series,Video,Game,MusicAlbum",null);
         if (listItems == null) return;
 
         for (BaseItemDto stub : listItems) {

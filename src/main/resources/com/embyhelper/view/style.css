@@ -411,3 +411,77 @@
 .chip-toggle-button:selected .tag-delete-button:hover {
     -fx-background-color: #dc3545;
 }
+
+/* --- (THÊM MỚI) Style cho ListView và TableView --- */
+
+/* 1. Nền và Viền chung */
+.list-view,
+.table-view {
+    -fx-background-color: #1e1e1e; /* Nền tối giống text-field */
+    -fx-border-color: #3a3a3a;
+    -fx-background-insets: 0;
+    -fx-border-radius: 10px; /* Bo góc */
+    -fx-background-radius: 10px;
+}
+
+/* 2. Style cho ListView (Danh sách nguồn) */
+.list-view .list-cell {
+    -fx-background-color: transparent; /* Nền trong suốt */
+    -fx-text-fill: #e0e0e0; /* Chữ sáng */
+    -fx-padding: 8px 12px;
+}
+.list-view .list-cell:filled:hover {
+    -fx-background-color: #454545; /* Sáng hơn khi hover */
+    -fx-text-fill: white;
+}
+.list-view .list-cell:filled:selected {
+    -fx-background-color: #005f9e; /* Xanh dương đậm khi chọn */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* 3. Style cho TableView (Danh sách đích) - Header */
+.table-view .column-header-background {
+    -fx-background-color: #2a2a2a; /* Nền header giống TitledPane */
+}
+.table-view .column-header, .table-view .filler {
+    -fx-background-color: transparent;
+    -fx-border-color: #3a3a3a;
+    -fx-border-width: 0 1 1 0; /* Viền ngăn cách cột */
+    -fx-padding: 8px 12px;
+}
+.table-view .column-header .label {
+    -fx-text-fill: #cccccc; /* Chữ tiêu đề */
+    -fx-font-weight: bold;
+}
+
+/* 4. Style cho TableView - Dòng (Row) và Ô (Cell) */
+.table-row-cell {
+    -fx-background-color: #1e1e1e; /* Nền dòng */
+    -fx-border-color: #3a3a3a; /* Viền ngang */
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 0; /* Cell sẽ quản lý padding */
+}
+.table-row-cell:empty {
+    -fx-background-color: #1e1e1e; /* Ẩn dòng trống */
+}
+.table-row-cell:filled:hover {
+    -fx-background-color: #454545; /* Hover dòng */
+}
+.table-row-cell:filled:selected {
+    -fx-background-color: #005f9e; /* Chọn dòng */
+}
+
+.table-cell {
+    -fx-text-fill: #e0e0e0; /* Chữ trong ô */
+    -fx-padding: 8px 12px;
+    -fx-border-color: transparent; /* Tắt viền dọc của cell */
+}
+
+/* 5. Placeholder (Khi bảng không có dữ liệu) */
+.table-view .placeholder .label,
+.list-view .placeholder .label {
+    -fx-text-fill: #777777;
+}
+
+/* --- (Kết thúc) Style cho ListView và TableView --- */

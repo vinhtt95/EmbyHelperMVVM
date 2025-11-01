@@ -1,8 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
 <VBox xmlns="http://javafx.com/javafx/20" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.embyhelper.view.MainView" spacing="10.0">
     <children>
@@ -26,7 +42,7 @@
             <tabs>
                 <Tab text="%tab.batch">
                     <content>
-                        <VBox spacing="15.0">
+                        <VBox spacing="15.0" VBox.vgrow="ALWAYS">
                             <padding>
                                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                             </padding>
@@ -55,6 +71,40 @@
                                             <Label text="%label.importJsonParentId" />
                                             <TextField fx:id="txtImportJsonParentID" promptText="%prompt.importJsonParentId" />
                                             <Button fx:id="btnRunImportJson" onAction="#onRunImportJsonClick" text="%button.importJson" />
+                                        </VBox>
+                                    </content>
+                                </TitledPane>
+
+                                <TitledPane animated="false" text="%pane.copyMetadata.title" VBox.vgrow="ALWAYS">
+                                    <content>
+                                        <VBox spacing="8.0" VBox.vgrow="ALWAYS">
+                                            <Label text="%label.copySourceParentId" />
+                                            <HBox spacing="10.0">
+                                                <TextField fx:id="txtCopySourceParentID" promptText="%prompt.copySourceParentId" HBox.hgrow="ALWAYS" />
+                                                <Button fx:id="btnFindSourceItems" onAction="#onFindSourceItemsClick" text="%button.findSourceItems" />
+                                            </HBox>
+
+                                            <Label text="%label.sourceItemList" />
+                                            <TableView fx:id="sourceItemsTableView" prefHeight="200.0" VBox.vgrow="ALWAYS">
+                                                <columns>
+                                                    <TableColumn fx:id="colSourceId" prefWidth="250.0" text="%table.col.id" />
+                                                    <TableColumn fx:id="colSourceOriginalTitle" prefWidth="150.0" text="%table.col.originalTitle" />
+                                                    <TableColumn fx:id="colSourceImages" prefWidth="80.0" text="%table.col.images" />
+                                                    <TableColumn fx:id="colSourcePath" prefWidth="300.0" text="%table.col.path" />
+                                                </columns>
+                                            </TableView>
+
+                                            <Label text="%label.destinationItemList" />
+                                            <TableView fx:id="destinationItemsTableView" prefHeight="200.0" VBox.vgrow="ALWAYS">
+                                                <columns>
+                                                    <TableColumn fx:id="colDestId" prefWidth="250.0" text="%table.col.id" />
+                                                    <TableColumn fx:id="colDestOriginalTitle" prefWidth="150.0" text="%table.col.originalTitle" />
+                                                    <TableColumn fx:id="colDestImages" prefWidth="80.0" text="%table.col.images" />
+                                                    <TableColumn fx:id="colDestPath" prefWidth="300.0" text="%table.col.path" />
+                                                </columns>
+                                            </TableView>
+
+                                            <Button fx:id="btnRunCopyMetadata" onAction="#onRunCopyMetadataClick" text="%button.runCopyMetadata" />
                                         </VBox>
                                     </content>
                                 </TitledPane>

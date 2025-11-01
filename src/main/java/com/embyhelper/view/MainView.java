@@ -7,15 +7,20 @@ import com.embyhelper.view.controls.TagView;
 import com.embyhelper.viewmodel.BatchViewModel;
 import com.embyhelper.viewmodel.MainViewModel;
 import com.embyhelper.viewmodel.MetadataViewModel;
+import embyclient.model.BaseItemDto;
 import java.io.File;
 import java.util.Optional;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.util.StringConverter;
+import embyclient.model.BaseItemDto;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 /**
  * Lớp Code-Behind cho MainView.fxml.
@@ -55,6 +60,21 @@ public class MainView {
     @FXML private TextField txtExportJsonParentID;
     @FXML private TextField txtBatchProcessParentID;
     @FXML private TextField txtImportJsonParentID;
+    @FXML private TextField txtCopySourceParentID;
+    @FXML private Button btnFindSourceItems;
+    @FXML private TableView<BaseItemDto> sourceItemsTableView;
+    @FXML private TableColumn<BaseItemDto, String> colSourceId;
+    @FXML private TableColumn<BaseItemDto, String> colSourceOriginalTitle;
+    @FXML private TableColumn<BaseItemDto, String> colSourceImages;
+    @FXML private TableColumn<BaseItemDto, String> colSourcePath;
+    @FXML private TableView<BaseItemDto> destinationItemsTableView;
+
+    @FXML private TableColumn<BaseItemDto, String> colDestName;
+    @FXML private TableColumn<BaseItemDto, String> colDestOriginalTitle;
+    @FXML private TableColumn<BaseItemDto, String> colDestId;
+    @FXML private TableColumn<BaseItemDto, String> colDestImages;
+    @FXML private TableColumn<BaseItemDto, String> colDestPath;
+    @FXML private Button btnRunCopyMetadata;
 
     /**
      * SỬA LỖI: Hàm initialize() bây giờ rỗng.
@@ -149,6 +169,52 @@ public class MainView {
         txtExportJsonParentID.textProperty().bindBidirectional(batchViewModel.exportParentIdProperty());
         txtBatchProcessParentID.textProperty().bindBidirectional(batchViewModel.batchProcessParentIdProperty());
         txtImportJsonParentID.textProperty().bindBidirectional(batchViewModel.importParentIdProperty());
+
+        txtCopySourceParentID.textProperty().bindBidirectional(batchViewModel.copySourceParentIdProperty());
+
+        // 1. Source List View
+        sourceItemsTableView.setItems(batchViewModel.getSourceItemsList());
+        // Bind item được chọn (View -> ViewModel)
+        sourceItemsTableView.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldVal, newVal) -> batchViewModel.selectedSourceItemProperty().set(newVal)
+        );
+        colSourceId.setCellValueFactory(new PropertyValueFactory<>("Id"));
+        colSourceOriginalTitle.setCellValueFactory(new PropertyValueFactory<>("OriginalTitle"));
+        colSourcePath.setCellValueFactory(new PropertyValueFactory<>("Path"));
+        // Cột tùy chỉnh cho số lượng ảnh
+        colSourceImages.setCellValueFactory(cellData -> {
+            BaseItemDto item = cellData.getValue();
+            if (item == null) return new SimpleStringProperty("-");
+            int primary = (item.getImageTags() != null && item.getImageTags().containsKey("Primary")) ? 1 : 0;
+            int backdrops = (item.getBackdropImageTags() != null) ? item.getBackdropImageTags().size() : 0;
+            return new SimpleStringProperty(primary + " / " + backdrops);
+        });
+
+        // 2. Destination Table View
+        destinationItemsTableView.setItems(batchViewModel.getDestinationItemsList());
+        // Bind item được chọn (View -> ViewModel)
+        destinationItemsTableView.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldVal, newVal) -> batchViewModel.selectedDestinationItemProperty().set(newVal)
+        );
+        // Thiết lập CellValueFactory
+        colDestId.setCellValueFactory(new PropertyValueFactory<>("Id"));
+        colDestOriginalTitle.setCellValueFactory(new PropertyValueFactory<>("OriginalTitle"));
+        colDestPath.setCellValueFactory(new PropertyValueFactory<>("Path"));
+        // Cột tùy chỉnh cho số lượng ảnh
+        colDestImages.setCellValueFactory(cellData -> {
+            BaseItemDto item = cellData.getValue();
+            if (item == null) return new SimpleStringProperty("-");
+            int primary = (item.getImageTags() != null && item.getImageTags().containsKey("Primary")) ? 1 : 0;
+            int backdrops = (item.getBackdropImageTags() != null) ? item.getBackdropImageTags().size() : 0;
+            return new SimpleStringProperty(primary + " / " + backdrops);
+        });
+
+        // 3. Button "Copy"
+        // Vô hiệu hóa nếu chưa chọn đủ 2 item
+        btnRunCopyMetadata.disableProperty().bind(
+                batchViewModel.selectedSourceItemProperty().isNull()
+                        .or(batchViewModel.selectedDestinationItemProperty().isNull())
+        );
     }
 
     private void populateFlowPane() {
@@ -203,6 +269,16 @@ public class MainView {
     @FXML
     private void onRunBatchProcessClick() {
         batchViewModel.runBatchProcess();
+    }
+
+    @FXML
+    private void onFindSourceItemsClick() {
+        batchViewModel.findSourceItems();
+    }
+
+    @FXML
+    private void onRunCopyMetadataClick() {
+        batchViewModel.copyMetadataToSelected();
     }
 
     @FXML

@@ -17,6 +17,7 @@ import com.embyhelper.viewmodel.BatchViewModel;
 import com.embyhelper.viewmodel.LoginViewModel;
 import com.embyhelper.viewmodel.MainViewModel;
 import com.embyhelper.viewmodel.MetadataViewModel;
+import com.embyhelper.usecase.CopyMetadataUseCase;
 
 import java.util.ResourceBundle;
 
@@ -33,17 +34,19 @@ public class ServiceLocator {
     private final BatchProcessUseCase batchProcessUseCase;
     private final ExportJsonUseCase exportJsonUseCase;
     private final ImportJsonUseCase importJsonUseCase;
+    private final CopyMetadataUseCase copyMetadataUseCase;
 
 
     private ServiceLocator() {
         this.configRepository = new PrefsConfigRepository();
         this.localizationService = new LocalizationService(configRepository);
         this.navigationService = new NavigationService(localizationService);
-        this.embyRepository = new EmbyRepositoryImpl();
+        this.embyRepository = new EmbyRepositoryImpl(configRepository);
         this.authService = new AuthService(configRepository, embyRepository);
         this.batchProcessUseCase = new BatchProcessUseCase(embyRepository);
         this.exportJsonUseCase = new ExportJsonUseCase(embyRepository);
         this.importJsonUseCase = new ImportJsonUseCase(embyRepository);
+        this.copyMetadataUseCase = new CopyMetadataUseCase(embyRepository);
     }
 
     // (Getters cho dịch vụ không đổi)
@@ -75,18 +78,17 @@ public class ServiceLocator {
                 batchProcessUseCase,
                 exportJsonUseCase,
                 importJsonUseCase,
+                copyMetadataUseCase,
+                embyRepository,
                 bundle
         );
 
-        // ----- SỬA LỖI TẠI ĐÂY -----
-        // Thêm `authService` vào hàm tạo của MainViewModel
         return new MainViewModel(
                 navigationService,
                 localizationService,
-                authService, // <-- ĐÃ THÊM THAM SỐ CÒN THIẾU
+                authService,
                 metadataVM,
                 batchVM
         );
-        // ----- KẾT THÚC SỬA LỖI -----
     }
 }

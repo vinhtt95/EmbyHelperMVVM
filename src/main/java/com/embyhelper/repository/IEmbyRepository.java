@@ -1,7 +1,10 @@
 package com.embyhelper.repository;
 
 import embyclient.model.BaseItemDto;
+import embyclient.model.ImageType;
+import embyclient.model.ImageInfo;
 import embyclient.model.UserLibraryTagItem;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -9,11 +12,12 @@ import java.util.List;
  * (Nguyên tắc D và I của SOLID)
  * Đây là lớp Facade cho SDK.
  */
+
 public interface IEmbyRepository {
     void initialize(String userId);
 
     // --- Logic từ ItemService (chỉ API calls) ---
-    List<BaseItemDto> getItemsByParentId(String parentId, Integer startIndex, Integer limit, boolean recursive, String includeItemTypes);
+    List<BaseItemDto> getItemsByParentId(String parentId, Integer startIndex, Integer limit, boolean recursive, String includeItemTypes, String fields);
     BaseItemDto getItemInfo(String itemId);
     boolean updateItemInfo(String itemId, BaseItemDto item);
     List<BaseItemDto> searchItems(String searchTerm, String parentId, String fields, String includeItemTypes, boolean recursive);
@@ -33,4 +37,9 @@ public interface IEmbyRepository {
     // --- Logic từ TagService ---
     List<UserLibraryTagItem> getTags();
     List<BaseItemDto> getItemsByTagName(String tagName);
+    List<ImageInfo> getItemImages(String itemId);
+    DownloadedImage downloadImage(String imageUrl) throws IOException;
+    void uploadImage(String itemId, ImageType type, byte[] imageBytes, String mediaType) throws IOException;
+    void deleteImage(String itemId, ImageType type, Integer index);
+    String getBasePath();
 }

@@ -44,7 +44,7 @@ public class PeopleStrategy implements IMetadataStrategy {
         List<BaseItemPerson> peopleToCopy = itemCopy.getPeople();
         if (peopleToCopy == null) return;
 
-        List<BaseItemDto> listPaste = repo.getItemsByParentId(toId, null, null, true, "Movie,Series,Video,Game");
+        List<BaseItemDto> listPaste = repo.getItemsByParentId(toId, null, null, true, "Movie,Series,Video,Game",null);
         if (listPaste == null) return;
 
         for (BaseItemDto stub : listPaste) {
@@ -59,7 +59,7 @@ public class PeopleStrategy implements IMetadataStrategy {
 
     @Override
     public void clearByParent(IEmbyRepository repo, String parentId) {
-        List<BaseItemDto> listItems = repo.getItemsByParentId(parentId, null, null, true, "Movie,Series,Video,Game");
+        List<BaseItemDto> listItems = repo.getItemsByParentId(parentId, null, null, true, "Movie,Series,Video,Game",null);
         if (listItems == null) return;
 
         for (BaseItemDto stub : listItems) {

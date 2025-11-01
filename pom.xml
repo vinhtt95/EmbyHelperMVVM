@@ -17,6 +17,7 @@
         <javafx.version>20.0.2</javafx.version>
         <maven.compiler.source>20</maven.compiler.source>
         <maven.compiler.target>20</maven.compiler.target>
+        <okhttp2.version>2.7.5</okhttp2.version>
     </properties>
 
     <dependencies>
@@ -65,6 +66,12 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.squareup.okhttp</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>${okhttp2.version}</version>
         </dependency>
     </dependencies>
 

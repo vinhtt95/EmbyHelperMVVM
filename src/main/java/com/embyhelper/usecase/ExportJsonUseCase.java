@@ -33,7 +33,7 @@ public class ExportJsonUseCase {
         ExportResult result = new ExportResult();
         progressCallback.accept("Đang lấy danh sách item từ Parent ID: " + parentId);
 
-        List<BaseItemDto> itemsToExport = embyRepo.getItemsByParentId(parentId, null, null, true, "Movie"); // Giả sử chỉ Movie
+        List<BaseItemDto> itemsToExport = embyRepo.getItemsByParentId(parentId, null, null, true, "Movie", null); // Giả sử chỉ Movie
         if (itemsToExport == null || itemsToExport.isEmpty()) {
             progressCallback.accept("Không tìm thấy item con nào trong Parent ID: " + parentId);
             return result;
