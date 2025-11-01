@@ -1,0 +1,413 @@
+/* --- GIAO DIỆN DARK MODE CHUYÊN NGHIỆP HƠN --- */
+.root {
+    -fx-background-color: #121212; /* Nền đen tuyền hơn */
+    -fx-font-family: "Segoe UI", system-ui, sans-serif; /* Font hệ thống hiện đại */
+    -fx-font-size: 16px; /* Giảm nhẹ font chữ gốc nếu 18px quá to */
+}
+
+/* Kiểu chữ cho nhãn (Label) */
+.label {
+    -fx-text-fill: #cccccc; /* Chữ xám sáng hơn */
+}
+
+/* Kiểu cho nút bấm (Button) - Bo tròn, tối màu */
+.button, .toggle-button { /* Áp dụng cho cả ToggleButton */
+    -fx-background-color: #333333; /* Xám đậm */
+    -fx-text-fill: #e0e0e0; /* Chữ sáng */
+    -fx-font-weight: normal; /* Bỏ bold mặc định */
+    -fx-background-radius: 18px; /* Bo tròn nhiều */
+    -fx-border-radius: 18px;    /* Bo tròn viền */
+    -fx-border-color: #444444;    /* Viền tối hơn */
+    -fx-padding: 8px 18px; /* Padding lớn hơn một chút */
+    -fx-font-size: 15px;   /* Cỡ chữ nút nhỏ hơn */
+    -fx-cursor: hand;
+}
+.button:hover, .toggle-button:hover {
+    -fx-background-color: #454545; /* Sáng hơn chút khi hover */
+    -fx-border-color: #555555;
+}
+/* Nút mặc định (vd: Kết nối) có màu xanh */
+.button:default {
+    -fx-background-color: #005f9e; /* Xanh dương đậm hơn */
+    -fx-border-color: #007acc;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+.button:default:hover {
+    -fx-background-color: #007acc; /* Xanh dương sáng hơn khi hover */
+}
+/* Nút bị disable */
+.button:disabled, .toggle-button:disabled {
+    -fx-opacity: 0.5;
+}
+
+
+/* Ô nhập liệu (TextField, PasswordField) - Bo tròn, tối màu */
+.text-field, .password-field {
+    -fx-background-color: #1e1e1e; /* Nền tối gần như đen */
+    -fx-text-fill: #e0e0e0;       /* Chữ sáng */
+    -fx-prompt-text-fill: #777777; /* Màu chữ gợi ý */
+    -fx-border-color: #3a3a3a;    /* Viền xám rất tối */
+    -fx-border-radius: 18px;      /* Bo tròn nhiều */
+    -fx-background-radius: 18px;  /* Bo tròn nền */
+    -fx-padding: 8px 15px;      /* Padding */
+    -fx-font-size: 16px;         /* Cỡ chữ trong ô nhập */
+}
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #5C87B2; /* Viền xanh khi focus */
+    -fx-border-width: 1.5px;
+}
+
+
+/* ComboBox */
+.combo-box {
+    -fx-background-color: #333333; /* Màu nền lớp ngoài */
+    -fx-border-color: #444444;
+    -fx-border-radius: 18px;
+    -fx-background-radius: 18px; /* Bo tròn lớp ngoài */
+    -fx-font-size: 15px;
+    -fx-padding: 1px; /* Thêm padding nhỏ để viền không bị che */
+}
+
+/* Lớp nền chính bên trong */
+.combo-box .combo-box-base {
+    -fx-background-color: #333333; /* Đặt lại màu nền giống lớp ngoài */
+    -fx-background-radius: 18px; /* Bo tròn lớp nền */
+    -fx-border-radius: 18px;
+    -fx-border-color: transparent; /* Viền trong suốt */
+    -fx-padding: 0; /* Bỏ padding mặc định của base */
+}
+
+/* Ô hiển thị giá trị được chọn */
+.combo-box .list-cell {
+    -fx-background-color: transparent; /* Nền trong suốt để lộ lớp base đã bo tròn */
+    -fx-text-fill: #e0e0e0; /* Màu chữ */
+    -fx-padding: 8px 15px; /* Padding cho text */
+    /* Không cần bo tròn list-cell ở đây */
+}
+
+.combo-box .list-cell { /* Các mục trong danh sách thả xuống */
+    -fx-background-color: #333333;
+    -fx-text-fill: #e0e0e0;
+    -fx-padding: 8px 15px;
+}
+.combo-box-popup .list-view .list-cell:filled:hover {
+    -fx-background-color: #454545;
+    -fx-text-fill: white;
+}
+.combo-box-popup .list-view .list-cell:filled:selected {
+    -fx-background-color: #005f9e; /* Xanh dương đậm khi chọn */
+    -fx-text-fill: white;
+}
+.combo-box .arrow { /* Mũi tên */
+    -fx-background-color: #e0e0e0;
+}
+
+
+/* Kiểu cho TitledPane - Tối hơn */
+.titled-pane {
+    -fx-text-fill: #cccccc;
+}
+.titled-pane > .title {
+    -fx-background-color: #2a2a2a; /* Tối hơn */
+    -fx-border-color: #121212;     /* Viền trùng màu nền */
+    -fx-padding: 8px 10px;
+}
+.titled-pane > .title > .arrow-button .arrow {
+    -fx-background-color: #cccccc; /* Mũi tên sáng hơn */
+}
+.titled-pane > .title > .text {
+    -fx-fill: #cccccc;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+.titled-pane > .content {
+    -fx-background-color: #1e1e1e; /* Tối hơn */
+    -fx-padding: 15px;
+    -fx-border-color: #2a2a2a; /* Viền trùng màu tiêu đề */
+    -fx-border-width: 1 0 0 0;
+}
+
+/* --- THÊM: CSS CHO TABPANE --- */
+.tab-pane {
+    -fx-tab-min-width: 150px;
+    -fx-tab-min-height: 35px; /* Giảm chiều cao tab một chút */
+}
+.tab-pane .tab-header-area {
+    -fx-background-color: #1e1e1e; /* Nền header */
+    -fx-padding: 5px 0 0 10px;
+    -fx-border-color: #3a3a3a;
+    -fx-border-width: 0 0 1 0; /* Viền dưới thanh header */
+}
+.tab-pane .tab-header-background {
+    -fx-background-color: #1e1e1e; /* Nền thanh tab */
+}
+.tab-pane .tab {
+    -fx-background-color: #2a2a2a; /* Màu tab chưa chọn */
+    -fx-background-radius: 5 5 0 0;
+    -fx-background-insets: 0 2 0 0; /* Khoảng cách giữa các tab */
+    -fx-padding: 8px 20px 8px 20px; /* Padding tab */
+}
+.tab-pane .tab .tab-label {
+    -fx-text-fill: #999999; /* Chữ tab chưa chọn */
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+.tab-pane .tab:selected {
+    -fx-background-color: #121212; /* Nền tab đã chọn (giống nền root) */
+    -fx-border-color: #3a3a3a;
+    -fx-border-width: 1 1 0 1;
+    -fx-padding: 8px 20px 8px 20px;
+}
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #e0e0e0; /* Chữ tab đã chọn */
+}
+.tab-pane .tab:hover {
+    -fx-background-color: #333333; /* Hover tab chưa chọn */
+}
+.tab-pane .tab:selected:hover {
+    -fx-background-color: #121212; /* Hover tab đã chọn (không đổi) */
+}
+.tab-pane .tab-content-area {
+    -fx-background-color: #121212; /* Nền nội dung tab */
+}
+/* --- KẾT THÚC CSS TABPANE --- */
+
+
+/* ScrollPane */
+.scroll-pane {
+    -fx-background-color: #1e1e1e; /* Nền tối cho scrollpane chứa chip */
+    -fx-background: #1e1e1e;
+    -fx-border-color: #3a3a3a;
+    -fx-border-radius: 10px; /* Bo góc nhẹ */
+}
+.scroll-pane .flow-pane { /* Đảm bảo FlowPane bên trong trong suốt */
+    -fx-background-color: transparent;
+}
+
+/* ScrollBar - Giữ nguyên */
+.scroll-bar .increment-button, .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+.scroll-bar .increment-arrow, .scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+}
+.scroll-bar:vertical .thumb, .scroll-bar:horizontal .thumb {
+    -fx-background-color: #444444;
+    -fx-background-radius: 5;
+    -fx-opacity: 0.0; /* Ẩn đi ban đầu */
+    -fx-transition: opacity 0.3s ease;
+}
+.scroll-pane:hover .scroll-bar:vertical .thumb,
+.scroll-pane:hover .scroll-bar:horizontal .thumb,
+.scroll-bar:vertical:hover .thumb,
+.scroll-bar:vertical:pressed .thumb,
+.scroll-bar:horizontal:hover .thumb,
+.scroll-bar:horizontal:pressed .thumb {
+    -fx-opacity: 0.8;
+}
+.scroll-bar:vertical, .scroll-bar:horizontal {
+    -fx-background-color: transparent; /* Nền thanh cuộn trong suốt */
+}
+
+/* MenuBar - Tối hơn */
+.menu-bar {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: #3a3a3a;
+    -fx-border-width: 0 0 1 0;
+}
+.menu-bar .label {
+    -fx-text-fill: #cccccc;
+}
+.menu:hover, .menu:showing {
+    -fx-background-color: #2a2a2a;
+}
+.menu-item .label {
+    -fx-text-fill: #cccccc;
+}
+.menu-item:focused {
+    -fx-background-color: #005f9e; /* Xanh dương đậm khi focus */
+}
+.menu-item:focused .label {
+    -fx-text-fill: white;
+}
+.context-menu {
+    -fx-background-color: #2a2a2a; /* Menu chuột phải tối hơn */
+}
+
+/* --- (THÊM MỚI) CSS CHO DIALOGPANE (POPUP) --- */
+.dialog-pane {
+    -fx-background-color: #1e1e1e; /* Nền tối hơn root một chút */
+    -fx-border-color: #3a3a3a;
+    -fx-border-width: 1px;
+}
+.dialog-pane .header-panel {
+    -fx-background-color: #2a2a2a; /* Nền header */
+    -fx-padding: 10px 15px;
+}
+.dialog-pane .header-panel .label { /* Label trong header (Tiêu đề) */
+    -fx-text-fill: #e0e0e0;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+.dialog-pane .content {
+    -fx-background-color: #1e1e1e; /* Nền content */
+    -fx-padding: 20px;
+}
+.dialog-pane .content .label { /* Label trong content */
+    -fx-text-fill: #cccccc;
+}
+
+/* Checkbox style */
+.check-box {
+    -fx-text-fill: #cccccc;
+}
+.check-box .box {
+    -fx-background-color: #333333;
+    -fx-border-color: #555555;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+}
+.check-box:selected .box .mark {
+    -fx-background-color: #007acc; /* Màu xanh khi check */
+}
+.check-box:focused .box {
+    -fx-border-color: #5C87B2; /* Viền xanh khi focus */
+}
+
+.dialog-pane .button-bar {
+    -fx-background-color: #1e1e1e;
+    -fx-padding: 10px 20px;
+}
+/* Các nút trong dialog-pane sẽ tự động nhận style .button */
+
+
+/* --- STATUS BAR STYLES --- */
+.status-bar {
+    -fx-background-color: #1e1e1e; /* Màu nền giống MenuBar */
+    -fx-border-color: #3a3a3a;    /* Viền trên tối */
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 5px 10px 5px 10px; /* Padding */
+}
+#statusLabel {
+    -fx-text-fill: #999999; /* Màu chữ xám nhạt hơn nữa */
+    -fx-font-size: 14px;   /* Cỡ chữ nhỏ hơn */
+}
+#statusIndicator .progress-indicator { /* Style cho vòng quay loading */
+    -fx-progress-color: #5C87B2; /* Màu xanh Emby */
+}
+
+
+/* --- TAG VIEW / CHIP STYLES (HOÀN NGUYÊN LẠI) --- */
+.tag-view { /* HBox chứa nội dung chip */
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-alignment: center-left;
+    -fx-spacing: 5;
+}
+
+.chip-toggle-button { /* ToggleButton bao ngoài - Style chung */
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-padding: 8px 10px 8px 15px; /* Padding lớn */
+    -fx-cursor: hand;
+    -fx-background-color: #333333; /* Nền xám đậm mặc định */
+    -fx-border-color: #444444;
+}
+.chip-toggle-button:hover { /* Hover chung */
+    -fx-background-color: #454545;
+    -fx-border-color: #555555;
+}
+
+/* Style cho loại chip JSON (Màu xanh dương) - Áp dụng class .tag-view-json cho ToggleButton */
+.chip-toggle-button.tag-view-json {
+    -fx-background-color: #004d80; /* <-- HOÀN NGUYÊN */
+    -fx-border-color: #007acc; /* <-- HOÀN NGUYÊN */
+}
+.chip-toggle-button.tag-view-json:hover {
+    -fx-background-color: #005f9e; /* <-- HOÀN NGUYÊN */
+}
+.chip-toggle-button.tag-view-json:selected {
+    -fx-background-color: #005f9e; /* <-- HOÀN NGUYÊN */
+    -fx-border-color: #dfdede;
+    -fx-border-width: 2px;
+}
+
+/* Style chữ bên trong JSON (Nhắm mục tiêu con bên trong ToggleButton.tag-view-json) */
+.chip-toggle-button.tag-view-json .tag-label-key {
+    -fx-text-fill: #c0c0c0;
+    -fx-font-size: 16px; /* CỠ CHỮ 16 */
+    -fx-font-style: italic;
+}
+.chip-toggle-button.tag-view-json .tag-separator {
+    -fx-border-color: #99cfff;
+    -fx-background-color: transparent;
+    -fx-border-width: 0 0 0 1px;
+    -fx-padding: 0;
+    -fx-max-height: 18px;
+}
+.chip-toggle-button.tag-view-json .tag-label-value {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16px; /* CỠ CHỮ 16 */
+    -fx-font-weight: bold;
+}
+
+
+/* Style cho loại chip Simple (Màu hồng) - Áp dụng class .tag-view-simple cho ToggleButton */
+.chip-toggle-button.tag-view-simple {
+    -fx-background-color: rgba(180, 49, 93, 0.8); /* <-- HOÀN NGUYÊN */
+    -fx-border-color: #F06292; /* <-- HOÀN NGUYÊN */
+}
+.chip-toggle-button.tag-view-simple:hover {
+    -fx-background-color: rgba(200, 60, 110, 0.9); /* <-- HOÀN NGUYÊN */
+}
+.chip-toggle-button.tag-view-simple:selected {
+    -fx-background-color: rgba(180, 49, 93, 0.8);
+    -fx-border-color: #dfdede;
+    -fx-border-width: 2px;
+}
+
+/* Style chữ bên trong Simple (Nhắm mục tiêu con bên trong ToggleButton.tag-view-simple) */
+.chip-toggle-button.tag-view-simple .tag-label {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16px; /* CỠ CHỮ 16 */
+    -fx-font-weight: bold;
+}
+
+/* Nút xóa bên trong TagView (Giữ nguyên) */
+.tag-delete-button {
+    -fx-background-color: rgba(0, 0, 0, 0.2);
+    -fx-text-fill: #e0e0e0;
+    -fx-background-radius: 100px;
+    -fx-padding: 0px 6px 0px 6px;
+    -fx-font-size: 12px;
+    -fx-min-width: 20px;
+    -fx-min-height: 20px;
+    -fx-border-width: 0;
+}
+.tag-delete-button:hover {
+    -fx-background-color: #dc3545;
+    -fx-text-fill: #ffffff;
+}
+
+.chip-toggle-button:selected {
+    -fx-background-color: #7AA0C6; /* <-- Đã đổi sang màu sáng hơn */
+    -fx-border-color: #9BC1DD;     /* <-- Đã đổi sang màu viền sáng hơn */
+}
+/* Style chữ bên trong khi ToggleButton được chọn (Luôn là trắng) */
+.chip-toggle-button:selected .tag-label,
+.chip-toggle-button:selected .tag-label-key,
+.chip-toggle-button:selected .tag-label-value {
+    -fx-text-fill: white;
+}
+.chip-toggle-button:selected .tag-separator {
+    -fx-border-color: white;
+}
+/* Style nút xóa khi ToggleButton được chọn */
+.chip-toggle-button:selected .tag-delete-button {
+    -fx-background-color: #7AA0C6;
+}
+.chip-toggle-button:selected .tag-delete-button:hover {
+    -fx-background-color: #dc3545;
+}
