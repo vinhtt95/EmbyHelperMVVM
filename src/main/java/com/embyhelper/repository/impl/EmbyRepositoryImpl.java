@@ -122,8 +122,8 @@ public class EmbyRepositoryImpl implements IEmbyRepository {
     @Override
     public void deleteImage(String itemId, ImageType type, Integer index) {
         try {
-            // (Học từ Project 2)
-            imageServiceApi.deleteItemsByIdImagesByTypeByIndex(itemId, index, type);
+            Integer finalIndex = (index == null) ? 0 : index;
+            imageServiceApi.deleteItemsByIdImagesByTypeByIndex(itemId, finalIndex, type);
         } catch (Exception e) {
             System.err.println("Lỗi deleteImage (ID: " + itemId + ", Type: " + type + ", Index: " + index + "): " + e.getMessage());
         }

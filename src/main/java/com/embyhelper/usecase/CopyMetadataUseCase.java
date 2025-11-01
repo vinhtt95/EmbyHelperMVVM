@@ -27,35 +27,26 @@ public class CopyMetadataUseCase {
             return;
         }
 
-        progressCallback.accept("Đang lấy full metadata từ item đích (ID: " + destinationItemId + ")");
-        BaseItemDto itemOnServer = embyRepo.getItemInfo(destinationItemId);
-        if (itemOnServer == null) {
-            progressCallback.accept("LỖI: Không thể lấy thông tin item đích.");
-            return;
-        }
+        progressCallback.accept("Đang sao chép metadata từ '" + sourceItem.getName() + "' sang item đích (ID: " + destinationItemId + ")...");
 
-        progressCallback.accept("Đang sao chép metadata từ '" + sourceItem.getName() + "' sang '" + itemOnServer.getName() + "'...");
+        sourceItem.setId(destinationItemId);
 
-        // Sao chép metadata
-        if (updateItemFromSource(itemOnServer, sourceItem)) {
-            progressCallback.accept("Cập nhật thành công cho: " + itemOnServer.getOriginalTitle());
+        if (embyRepo.updateItemInfo(destinationItemId, sourceItem)) {
+            progressCallback.accept("Cập nhật metadata thành công.");
         } else {
-            progressCallback.accept("Cập nhật thất bại (API) cho: " + itemOnServer.getOriginalTitle());
+            progressCallback.accept("Cập nhật metadata thất bại (API).");
         }
 
         try {
-            // 1. Lấy danh sách ảnh
             progressCallback.accept("Đang lấy danh sách ảnh nguồn...");
             List<ImageInfo> sourceImages = embyRepo.getItemImages(sourceItemId);
             List<ImageInfo> destImages = embyRepo.getItemImages(destinationItemId);
 
-            // 2. Xóa ảnh cũ ở đích
             progressCallback.accept("Đang xóa " + destImages.size() + " ảnh cũ ở đích...");
             for (ImageInfo img : destImages) {
                 embyRepo.deleteImage(destinationItemId, img.getImageType(), img.getImageIndex());
             }
 
-            // 3. Sao chép ảnh mới
             progressCallback.accept("Đang sao chép " + sourceImages.size() + " ảnh mới...");
             String serverUrl = embyRepo.getBasePath();
 
@@ -66,16 +57,14 @@ public class CopyMetadataUseCase {
 
                 progressCallback.accept(String.format("Đang copy ảnh (%d/%d): %s", (i+1), sourceImages.size(), type.getValue()));
 
-                // 3a. Build URL (Học từ ItemDetailLoader)
                 String imageUrl = null;
                 if (type == ImageType.PRIMARY) {
-                    Map<String, String> imageTags = sourceItem.getImageTags(); // Dùng sourceItem (metadata)
+                    Map<String, String> imageTags = sourceItem.getImageTags();
                     if (imageTags != null && imageTags.containsKey("Primary")) {
                         String tag = imageTags.get("Primary");
                         imageUrl = String.format("%s/Items/%s/Images/Primary?tag=%s", serverUrl, sourceItemId, tag);
                     }
                 } else {
-                    // Dùng ImageIndex (Học từ ImageUrlHelper)
                     Integer index = img.getImageIndex();
                     if (index != null) {
                         imageUrl = String.format("%s/Items/%s/Images/%s/%d", serverUrl, sourceItemId, type.getValue(), index);
@@ -87,10 +76,8 @@ public class CopyMetadataUseCase {
                     continue;
                 }
 
-                // 3b. Download
                 DownloadedImage downloadedImg = embyRepo.downloadImage(imageUrl);
 
-                // 3c. Upload
                 embyRepo.uploadImage(destinationItemId, type, downloadedImg.bytes, downloadedImg.mediaType);
             }
             progressCallback.accept("Sao chép ảnh hoàn tất!");
@@ -103,7 +90,7 @@ public class CopyMetadataUseCase {
 
     /**
      * Logic sao chép, được lấy từ ImportJsonUseCase.
-     */
+     *//*
     private boolean updateItemFromSource(BaseItemDto itemOnServer, BaseItemDto sourceItem) {
         if (itemOnServer == null || sourceItem == null) {
             return false;
@@ -118,6 +105,7 @@ public class CopyMetadataUseCase {
         itemOnServer.setProductionYear(sourceItem.getProductionYear());
         itemOnServer.setSortName(sourceItem.getSortName());
         itemOnServer.setOverview(sourceItem.getOverview());
+        itemOnServer.setCriticRating(sourceItem.getCriticRating());
 
         itemOnServer.getStudios().clear();
         if (sourceItem.getStudios() != null) {
@@ -140,5 +128,5 @@ public class CopyMetadataUseCase {
         }
 
         return embyRepo.updateItemInfo(serverId, itemOnServer);
-    }
+    }*/
 }
