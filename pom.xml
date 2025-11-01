@@ -94,7 +94,7 @@
                     <execution>
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.embyhelper/com.embyhelper.Launcher</mainClass>
+                            <mainClass>com.embyhelper.Launcher</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
