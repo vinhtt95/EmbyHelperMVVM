@@ -57,12 +57,20 @@ public class LoginViewModel extends ViewModelBase {
         final String user = username.get();
         final String pass = password.get();
 
+        // SỬA LỖI: Không dùng super.runTask() vì nó ghi đè OnSucceeded.
+        // Tự quản lý Task giống như BatchViewModel.
+
+        statusText.set(locService.getString("login.status.connecting"));
+        isLoading.set(true);
+
         Task<String> loginTask = new Task<>() {
             @Override
             protected String call() throws Exception {
                 String userId = authService.login(server, key, user, pass);
                 if (userId != null) {
-                    return userId;
+                    // Đặt message để OnSucceeded có thể lấy
+                    updateMessage(locService.getString("login.status.success"));
+                    return userId; // Trả về UserID
                 } else {
                     // Ném lỗi để onFailed bắt
                     throw new Exception(locService.getString("login.status.failure"));
@@ -72,14 +80,30 @@ public class LoginViewModel extends ViewModelBase {
 
         // Xử lý khi Task thành công (trên luồng UI)
         loginTask.setOnSucceeded(e -> {
-            String userId = loginTask.getValue();
-            statusText.set(locService.getString("login.status.success"));
+            String userId = loginTask.getValue();      // Lấy UserID
+            statusText.set(loginTask.getMessage());  // Lấy "login.status.success"
             isLoading.set(false);
-            // Chuyển sang màn hình chính
+
+            // HÀNH ĐỘNG QUAN TRỌNG: Chuyển sang màn hình chính
             navService.showMainView(userId);
         });
 
-        // Chạy Task (ViewModelBase sẽ xử lý setOnFailed)
-        runTask(locService.getString("login.status.connecting"), loginTask);
+        // Xử lý khi Task thất bại (trên luồng UI)
+        loginTask.setOnFailed(e -> {
+            // Lấy lỗi từ Exception
+            String errorMsg = e.getSource().getException().getMessage();
+            if (errorMsg == null || errorMsg.isEmpty()) {
+                errorMsg = "Lỗi không xác định.";
+            }
+
+            System.err.println("Lỗi khi chạy task login:");
+            e.getSource().getException().printStackTrace();
+
+            statusText.set(errorMsg); // Hiển thị lỗi
+            isLoading.set(false);
+        });
+
+        // Chạy Task trên luồng nền
+        new Thread(loginTask).start();
     }
 }

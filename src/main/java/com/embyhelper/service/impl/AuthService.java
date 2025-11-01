@@ -7,7 +7,9 @@ import embyclient.ApiClient;
 import embyclient.Configuration;
 import embyclient.api.UserServiceApi;
 import embyclient.auth.ApiKeyAuth;
-import java.util.function.Consumer; // <-- LỖI ĐÃ ĐƯỢC SỬA (THÊM DÒNG NÀY)
+import java.util.function.Consumer;
+import embyclient.ApiClient;
+import embyclient.Configuration;
 
 public class AuthService implements IAuthService {
 
@@ -109,6 +111,6 @@ public class AuthService implements IAuthService {
     @Override
     public void logout() {
         configRepo.clearSession();
-        // Có thể gọi API /Sessions/Logout nếu muốn
+        Configuration.setDefaultApiClient(new ApiClient());
     }
 }
