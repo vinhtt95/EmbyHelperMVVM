@@ -17,6 +17,11 @@ import javafx.beans.property.SimpleObjectProperty; // <-- THÊM MỚI
 import javafx.collections.FXCollections; // <-- THÊM MỚI
 import javafx.collections.ObservableList; // <-- THÊM MỚI
 import javafx.concurrent.Task;
+import java.util.Map; // <-- THÊM MỚI
+import java.util.ArrayList; // <-- THÊM MỚI
+import java.util.concurrent.ConcurrentHashMap; // <-- THÊM MỚI
+import javafx.application.Platform; // <-- THÊM MỚI
+import javafx.collections.transformation.FilteredList; // <-- THÊM MỚI
 
 public class BatchViewModel extends ViewModelBase {
 
@@ -37,15 +42,27 @@ public class BatchViewModel extends ViewModelBase {
     public StringProperty exportParentIdProperty() { return exportParentId; }
     public StringProperty importParentIdProperty() { return importParentId; }
 
-    // --- (THÊM MỚI) Properties cho Chức năng Sao chép Metadata ---
+    // --- (SỬA ĐỔI) Properties cho Chức năng Sao chép Metadata ---
     private final StringProperty copySourceParentId = new SimpleStringProperty();
-    private final ObservableList<BaseItemDto> sourceItemsList = FXCollections.observableArrayList();
+
+    // Danh sách gốc chứa TẤT CẢ item nguồn
+    private final ObservableList<BaseItemDto> allSourceItemsList = FXCollections.observableArrayList();
+    // Map lưu trữ các cặp khớp (SourceID -> List<DestItem>)
+    private final Map<String, List<BaseItemDto>> sourceToDestMap = new ConcurrentHashMap<>();
+    // Bộ lọc tìm kiếm (Yêu cầu 2)
+    private final StringProperty sourceFilterText = new SimpleStringProperty("");
+    // Danh sách đã lọc (Yêu cầu 1 & 2)
+    private final FilteredList<BaseItemDto> filteredSourceItemsList;
+
     private final ObjectProperty<BaseItemDto> selectedSourceItem = new SimpleObjectProperty<>();
     private final ObservableList<BaseItemDto> destinationItemsList = FXCollections.observableArrayList();
     private final ObjectProperty<BaseItemDto> selectedDestinationItem = new SimpleObjectProperty<>();
 
     public StringProperty copySourceParentIdProperty() { return copySourceParentId; }
-    public ObservableList<BaseItemDto> getSourceItemsList() { return sourceItemsList; }
+    // Getter cho danh sách đã lọc (cho View)
+    public FilteredList<BaseItemDto> getFilteredSourceItemsList() { return filteredSourceItemsList; }
+    public StringProperty sourceFilterTextProperty() { return sourceFilterText; }
+
     public ObjectProperty<BaseItemDto> selectedSourceItemProperty() { return selectedSourceItem; }
     public ObservableList<BaseItemDto> getDestinationItemsList() { return destinationItemsList; }
     public ObjectProperty<BaseItemDto> selectedDestinationItemProperty() { return selectedDestinationItem; }
@@ -65,13 +82,41 @@ public class BatchViewModel extends ViewModelBase {
         this.embyRepo = embyRepo; // <-- THÊM MỚI
         this.bundle = bundle;
 
-        // (THÊM MỚI) Listener tự động tìm item đích khi item nguồn thay đổi
+        // (SỬA ĐỔI) Khởi tạo FilteredList
+        this.filteredSourceItemsList = new FilteredList<>(allSourceItemsList, p -> false); // Mặc định ẩn tất cả
+
+        // (SỬA ĐỔI) Listener tự động tìm item đích (đọc từ Map)
         selectedSourceItem.addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                findDestinationItems(newVal);
-            } else {
-                destinationItemsList.clear();
+            findDestinationItemsFromMap(newVal);
+        });
+
+        // (THÊM MỚI) Listener cho bộ lọc text
+        sourceFilterText.addListener((obs, oldVal, newVal) -> {
+            updateSourceFilterPredicate(newVal);
+        });
+    }
+
+    /**
+     * (THÊM MỚI) Cập nhật bộ lọc cho danh sách nguồn (Yêu cầu 1 & 2)
+     */
+    private void updateSourceFilterPredicate(String filterText) {
+        String lowerCaseFilter = (filterText == null) ? "" : filterText.toLowerCase();
+
+        filteredSourceItemsList.setPredicate(item -> {
+            // Yêu cầu 1: Phải có ít nhất 1 item đích
+            boolean hasDestination = sourceToDestMap.containsKey(item.getId()) &&
+                    !sourceToDestMap.get(item.getId()).isEmpty();
+            if (!hasDestination) {
+                return false;
             }
+
+            // Yêu cầu 2: Lọc theo OriginalTitle
+            if (lowerCaseFilter.isEmpty()) {
+                return true; // Không có text filter, chỉ cần qua Yêu cầu 1
+            }
+
+            return item.getOriginalTitle() != null &&
+                    item.getOriginalTitle().toLowerCase().contains(lowerCaseFilter);
         });
     }
 
@@ -192,10 +237,11 @@ public class BatchViewModel extends ViewModelBase {
         new Thread(task).start();
     }
 
-    // --- (THÊM MỚI) Commands cho Chức năng Sao chép Metadata ---
+    // --- (SỬA ĐỔI) Commands cho Chức năng Sao chép Metadata ---
 
     /**
-     * Được gọi bởi View khi nhấn nút "Tìm Item nguồn".
+     * (SỬA ĐỔI) Được gọi bởi View khi nhấn nút "Tìm Item nguồn".
+     * Sẽ tìm nguồn VÀ tìm tất cả các cặp đích (Yêu cầu 1).
      */
     public void findSourceItems() {
         String parentId = copySourceParentId.get();
@@ -206,23 +252,69 @@ public class BatchViewModel extends ViewModelBase {
 
         isLoading.set(true);
         statusText.set("Đang tìm item con trong Parent ID: " + parentId);
-        sourceItemsList.clear(); // Xóa danh sách cũ
+        allSourceItemsList.clear(); // Xóa danh sách gốc
         destinationItemsList.clear(); // Xóa danh sách đích
+        sourceToDestMap.clear(); // Xóa map
 
-        Task<List<BaseItemDto>> task = new Task<>() {
+        Task<String> task = new Task<>() {
             @Override
-            protected List<BaseItemDto> call() throws Exception {
+            protected String call() throws Exception {
+                // --- GIAI ĐOẠN 1: LẤY NGUỒN ---
+                updateMessage("Đang tìm item con trong Parent ID: " + parentId);
                 // Yêu cầu lấy 'OriginalTitle'
-                return embyRepo.getItemsByParentId(parentId, null, null, true, "Movie", "OriginalTitle");
+                List<BaseItemDto> sourceItems = embyRepo.getItemsByParentId(parentId, null, null, true, "Movie", "OriginalTitle");
+
+                Platform.runLater(() -> allSourceItemsList.setAll(sourceItems));
+
+                if (sourceItems.isEmpty()) {
+                    return "Không tìm thấy item nguồn nào.";
+                }
+
+                // --- GIAI ĐOẠN 2: TÌM ĐÍCH CHO TẤT CẢ (Yêu cầu 1) ---
+                int total = sourceItems.size();
+                for (int i = 0; i < total; i++) {
+                    BaseItemDto sourceItem = sourceItems.get(i);
+                    updateMessage(String.format(bundle.getString("status.copy.findingMatches"), (i + 1), total, sourceItem.getName()));
+
+                    String originalTitle = sourceItem.getOriginalTitle();
+                    if (originalTitle == null || originalTitle.isEmpty()) {
+                        continue; // Bỏ qua nếu không có OriginalTitle
+                    }
+
+                    // Tìm kiếm toàn bộ server (parentId = null), yêu cầu 'OriginalTitle'
+                    List<BaseItemDto> results = embyRepo.searchItems(originalTitle, null, "OriginalTitle", "Movie", true);
+
+                    // Lọc lại kết quả
+                    List<BaseItemDto> destinations = results.stream()
+                            // Khớp chính xác (không phân biệt hoa thường)
+                            .filter(item -> item.getOriginalTitle() != null && originalTitle.equalsIgnoreCase(item.getOriginalTitle()))
+                            // Loại trừ chính item nguồn
+                            .filter(item -> !item.getId().equals(sourceItem.getId()))
+                            .collect(Collectors.toList());
+
+                    if (!destinations.isEmpty()) {
+                        sourceToDestMap.put(sourceItem.getId(), destinations);
+                    }
+                }
+
+                // Cập nhật lại bộ lọc trên UI Thread
+                Platform.runLater(() -> {
+                    updateSourceFilterPredicate(sourceFilterText.get());
+                });
+
+                return String.format(bundle.getString("status.copy.foundMatches"), sourceToDestMap.size());
             }
         };
 
+        statusText.bind(task.messageProperty());
+
         task.setOnSucceeded(e -> {
-            sourceItemsList.setAll(task.getValue());
-            statusText.set("Tìm thấy " + sourceItemsList.size() + " item nguồn.");
+            statusText.unbind();
+            statusText.set(task.getValue()); // Set thông báo cuối cùng
             isLoading.set(false);
         });
         task.setOnFailed(e -> {
+            statusText.unbind();
             statusText.set("Lỗi khi tìm item nguồn: " + e.getSource().getException().getMessage());
             isLoading.set(false);
         });
@@ -230,50 +322,25 @@ public class BatchViewModel extends ViewModelBase {
     }
 
     /**
-     * Được gọi tự động khi 'selectedSourceItem' thay đổi.
+     * (SỬA ĐỔI) Được gọi tự động khi 'selectedSourceItem' thay đổi.
+     * Lấy danh sách đích từ Map đã có.
      */
-    private void findDestinationItems(BaseItemDto sourceItem) {
-        String originalTitle = sourceItem.getOriginalTitle();
-        if (originalTitle == null || originalTitle.isEmpty()) {
-            statusText.set("Item nguồn không có OriginalTitle, không thể tìm item đích.");
-            destinationItemsList.clear();
-            return;
-        }
-
-        isLoading.set(true);
-        statusText.set("Đang tìm item đích khớp với OriginalTitle: " + originalTitle);
+    private void findDestinationItemsFromMap(BaseItemDto sourceItem) {
         destinationItemsList.clear();
-
-        Task<List<BaseItemDto>> task = new Task<>() {
-            @Override
-            protected List<BaseItemDto> call() throws Exception {
-                // Tìm kiếm toàn bộ server (parentId = null), yêu cầu 'OriginalTitle'
-                return embyRepo.searchItems(originalTitle, null, "OriginalTitle", "Movie", true);
-            }
-        };
-
-        task.setOnSucceeded(e -> {
-            // Lọc lại kết quả
-            List<BaseItemDto> results = task.getValue().stream()
-                    // Khớp chính xác (không phân biệt hoa thường)
-                    .filter(item -> item.getOriginalTitle() != null && originalTitle.equalsIgnoreCase(item.getOriginalTitle()))
-                    // Loại trừ chính item nguồn
-                    .filter(item -> !item.getId().equals(sourceItem.getId()))
-                    .collect(Collectors.toList());
-
-            destinationItemsList.setAll(results);
-            statusText.set("Tìm thấy " + destinationItemsList.size() + " item đích khớp.");
-            isLoading.set(false);
-        });
-        task.setOnFailed(e -> {
-            statusText.set("Lỗi khi tìm item đích: " + e.getSource().getException().getMessage());
-            isLoading.set(false);
-        });
-        new Thread(task).start();
+        if (sourceItem != null && sourceToDestMap.containsKey(sourceItem.getId())) {
+            destinationItemsList.setAll(sourceToDestMap.get(sourceItem.getId()));
+        }
     }
 
+    // --- HÀM CŨ (Không còn dùng, logic đã chuyển vào findSourceItems) ---
+    /*
+    private void findDestinationItems(BaseItemDto sourceItem) {
+        // ... (logic cũ)
+    }
+    */
+
     /**
-     * Được gọi bởi View khi nhấn nút "Thực thi sao chép".
+     * Được gọi bởi View khi nhấn nút "Thực thi sao chép" (1-1).
      */
     public void copyMetadataToSelected() {
         BaseItemDto source = selectedSourceItem.get();
@@ -304,6 +371,67 @@ public class BatchViewModel extends ViewModelBase {
         task.setOnFailed(e -> {
             statusText.unbind();
             statusText.set("Lỗi Sao chép Metadata: " + e.getSource().getException().getMessage());
+            isLoading.set(false);
+        });
+
+        new Thread(task).start();
+    }
+
+    /**
+     * (THÊM MỚI) Được gọi bởi View khi nhấn nút "Áp dụng Tất cả" (Yêu cầu 3).
+     */
+    public void copyAllMetadata() {
+        if (sourceToDestMap.isEmpty()) {
+            statusText.set("Không có cặp item nào để áp dụng.");
+            return;
+        }
+
+        Task<String> task = new Task<>() {
+            @Override
+            protected String call() throws Exception {
+                List<Map.Entry<String, List<BaseItemDto>>> jobs = new ArrayList<>(sourceToDestMap.entrySet());
+                int totalSourceItems = jobs.size();
+                updateMessage(String.format(bundle.getString("task.copyAll.start"), totalSourceItems));
+
+                long totalJobs = sourceToDestMap.values().stream().mapToLong(List::size).sum();
+                long currentJob = 0;
+
+                for (Map.Entry<String, List<BaseItemDto>> entry : jobs) {
+                    String sourceId = entry.getKey();
+                    List<BaseItemDto> destItems = entry.getValue();
+
+                    for (BaseItemDto destItem : destItems) {
+                        currentJob++;
+                        String destId = destItem.getId();
+
+                        // Cập nhật tiến độ cho UI
+                        updateMessage(String.format(bundle.getString("task.copyAll.progress"),
+                                currentJob, totalJobs, sourceId, destId));
+
+                        try {
+                            // Chạy sao chép (đồng bộ), không cần callback con
+                            copyMetadataUseCase.execute(sourceId, destId, null);
+                        } catch (Exception e) {
+                            System.err.println("Lỗi khi sao chép " + sourceId + " -> " + destId + ": " + e.getMessage());
+                            // (Tùy chọn: có thể đếm lỗi)
+                        }
+                    }
+                }
+
+                return String.format(bundle.getString("task.copyAll.done"), totalJobs);
+            }
+        };
+
+        statusText.bind(task.messageProperty());
+        isLoading.set(true);
+        task.setOnSucceeded(e -> {
+            statusText.unbind();
+            statusText.set(task.getValue()); // Set thông báo cuối cùng
+            isLoading.set(false);
+        });
+        task.setOnFailed(e -> {
+            statusText.unbind();
+            statusText.set("Lỗi 'Áp dụng Tất cả': " + e.getSource().getException().getMessage());
             isLoading.set(false);
         });
 

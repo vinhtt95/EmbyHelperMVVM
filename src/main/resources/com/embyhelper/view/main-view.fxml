@@ -19,6 +19,7 @@
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
 
 <VBox xmlns="http://javafx.com/javafx/20" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.embyhelper.view.MainView" spacing="10.0">
     <children>
@@ -84,6 +85,8 @@
                                                 <Button fx:id="btnFindSourceItems" onAction="#onFindSourceItemsClick" text="%button.findSourceItems" />
                                             </HBox>
 
+                                            <TextField fx:id="txtSourceFilter" promptText="%prompt.sourceFilter" />
+
                                             <Label text="%label.sourceItemList" />
                                             <TableView fx:id="sourceItemsTableView" prefHeight="200.0" VBox.vgrow="ALWAYS">
                                                 <columns>
@@ -104,7 +107,16 @@
                                                 </columns>
                                             </TableView>
 
-                                            <Button fx:id="btnRunCopyMetadata" onAction="#onRunCopyMetadataClick" text="%button.runCopyMetadata" />
+                                            <HBox alignment="CENTER_LEFT" spacing="10.0" VBox.vgrow="NEVER">
+                                                <children>
+                                                    <Button fx:id="btnRunCopyAllMetadata" onAction="#onRunCopyAllMetadataClick" text="%button.runCopyAllMetadata" />
+                                                    <Region HBox.hgrow="ALWAYS" />
+                                                    <Button fx:id="btnRunCopyMetadata" onAction="#onRunCopyMetadataClick" text="%button.runCopyMetadata" />
+                                                </children>
+                                                <padding>
+                                                    <Insets top="5.0" />
+                                                </padding>
+                                            </HBox>
                                         </VBox>
                                     </content>
                                 </TitledPane>

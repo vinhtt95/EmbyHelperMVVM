@@ -56,12 +56,13 @@ public class MainView {
     @FXML private Button btnRunUpdateSpecific;
     private final ToggleGroup selectionToggleGroup = new ToggleGroup();
 
-    // --- FXML Controls (Tab Batch) ---
+    // --- (SỬA ĐỔI) FXML Controls (Tab Batch) ---
     @FXML private TextField txtExportJsonParentID;
     @FXML private TextField txtBatchProcessParentID;
     @FXML private TextField txtImportJsonParentID;
     @FXML private TextField txtCopySourceParentID;
     @FXML private Button btnFindSourceItems;
+    @FXML private TextField txtSourceFilter; // <-- THÊM MỚI (Yêu cầu 2)
     @FXML private TableView<BaseItemDto> sourceItemsTableView;
     @FXML private TableColumn<BaseItemDto, String> colSourceId;
     @FXML private TableColumn<BaseItemDto, String> colSourceOriginalTitle;
@@ -74,7 +75,9 @@ public class MainView {
     @FXML private TableColumn<BaseItemDto, String> colDestId;
     @FXML private TableColumn<BaseItemDto, String> colDestImages;
     @FXML private TableColumn<BaseItemDto, String> colDestPath;
-    @FXML private Button btnRunCopyMetadata;
+
+    @FXML private Button btnRunCopyAllMetadata; // <-- THÊM MỚI (Yêu cầu 3)
+    @FXML private Button btnRunCopyMetadata; // (Yêu cầu 4)
 
     /**
      * SỬA LỖI: Hàm initialize() bây giờ rỗng.
@@ -164,7 +167,7 @@ public class MainView {
         populateFlowPane(); // Tải lần đầu (sẽ rỗng, vì VM chưa load)
     }
 
-    // --- Khởi tạo Tab Batch ---
+    // --- (SỬA ĐỔI) Khởi tạo Tab Batch ---
     private void initializeBatchTab() {
         txtExportJsonParentID.textProperty().bindBidirectional(batchViewModel.exportParentIdProperty());
         txtBatchProcessParentID.textProperty().bindBidirectional(batchViewModel.batchProcessParentIdProperty());
@@ -172,8 +175,13 @@ public class MainView {
 
         txtCopySourceParentID.textProperty().bindBidirectional(batchViewModel.copySourceParentIdProperty());
 
+        // (THÊM MỚI) Bind bộ lọc tìm kiếm (Yêu cầu 2)
+        txtSourceFilter.textProperty().bindBidirectional(batchViewModel.sourceFilterTextProperty());
+
         // 1. Source List View
-        sourceItemsTableView.setItems(batchViewModel.getSourceItemsList());
+        // (SỬA ĐỔI) Bind vào danh sách đã lọc (Yêu cầu 1 & 2)
+        sourceItemsTableView.setItems(batchViewModel.getFilteredSourceItemsList());
+
         // Bind item được chọn (View -> ViewModel)
         sourceItemsTableView.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldVal, newVal) -> batchViewModel.selectedSourceItemProperty().set(newVal)
@@ -209,12 +217,16 @@ public class MainView {
             return new SimpleStringProperty(primary + " / " + backdrops);
         });
 
-        // 3. Button "Copy"
+        // 3. Button "Copy" (1-1) (Yêu cầu 4)
         // Vô hiệu hóa nếu chưa chọn đủ 2 item
         btnRunCopyMetadata.disableProperty().bind(
                 batchViewModel.selectedSourceItemProperty().isNull()
                         .or(batchViewModel.selectedDestinationItemProperty().isNull())
         );
+
+        // 4. Button "Apply All" (Yêu cầu 3)
+        // Vô hiệu hóa nếu đang loading
+        btnRunCopyAllMetadata.disableProperty().bind(batchViewModel.isLoadingProperty());
     }
 
     private void populateFlowPane() {
@@ -265,7 +277,7 @@ public class MainView {
         result.ifPresent(tagModel -> metadataViewModel.updateSpecificCommand(tagModel));
     }
 
-    // Batch Tab
+    // (SỬA ĐỔI) Batch Tab
     @FXML
     private void onRunBatchProcessClick() {
         batchViewModel.runBatchProcess();
@@ -277,8 +289,13 @@ public class MainView {
     }
 
     @FXML
-    private void onRunCopyMetadataClick() {
+    private void onRunCopyMetadataClick() { // Nút 1-1 (Yêu cầu 4)
         batchViewModel.copyMetadataToSelected();
+    }
+
+    @FXML
+    private void onRunCopyAllMetadataClick() { // Nút Mới (Yêu cầu 3)
+        batchViewModel.copyAllMetadata();
     }
 
     @FXML

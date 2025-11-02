@@ -20,34 +20,41 @@ public class CopyMetadataUseCase {
     }
 
     public void execute(String sourceItemId, String destinationItemId, Consumer<String> progressCallback) {
-        progressCallback.accept("Đang lấy full metadata từ item nguồn (ID: " + sourceItemId + ")");
+        // (SỬA ĐỔI) Hàm helper nội tuyến để kiểm tra null
+        Consumer<String> safeCallback = (msg) -> {
+            if (progressCallback != null) {
+                progressCallback.accept(msg);
+            }
+        };
+
+        safeCallback.accept("Đang lấy full metadata từ item nguồn (ID: " + sourceItemId + ")");
         BaseItemDto sourceItem = embyRepo.getItemInfo(sourceItemId);
         if (sourceItem == null) {
-            progressCallback.accept("LỖI: Không thể lấy thông tin item nguồn.");
+            safeCallback.accept("LỖI: Không thể lấy thông tin item nguồn.");
             return;
         }
 
-        progressCallback.accept("Đang sao chép metadata từ '" + sourceItem.getName() + "' sang item đích (ID: " + destinationItemId + ")...");
+        safeCallback.accept("Đang sao chép metadata từ '" + sourceItem.getName() + "' sang item đích (ID: " + destinationItemId + ")...");
 
         sourceItem.setId(destinationItemId);
 
         if (embyRepo.updateItemInfo(destinationItemId, sourceItem)) {
-            progressCallback.accept("Cập nhật metadata thành công.");
+            safeCallback.accept("Cập nhật metadata thành công.");
         } else {
-            progressCallback.accept("Cập nhật metadata thất bại (API).");
+            safeCallback.accept("Cập nhật metadata thất bại (API).");
         }
 
         try {
-            progressCallback.accept("Đang lấy danh sách ảnh nguồn...");
+            safeCallback.accept("Đang lấy danh sách ảnh nguồn...");
             List<ImageInfo> sourceImages = embyRepo.getItemImages(sourceItemId);
             List<ImageInfo> destImages = embyRepo.getItemImages(destinationItemId);
 
-            progressCallback.accept("Đang xóa " + destImages.size() + " ảnh cũ ở đích...");
+            safeCallback.accept("Đang xóa " + destImages.size() + " ảnh cũ ở đích...");
             for (ImageInfo img : destImages) {
                 embyRepo.deleteImage(destinationItemId, img.getImageType(), img.getImageIndex());
             }
 
-            progressCallback.accept("Đang sao chép " + sourceImages.size() + " ảnh mới...");
+            safeCallback.accept("Đang sao chép " + sourceImages.size() + " ảnh mới...");
             String serverUrl = embyRepo.getBasePath();
 
             for (int i = 0; i < sourceImages.size(); i++) {
@@ -55,7 +62,7 @@ public class CopyMetadataUseCase {
                 ImageType type = img.getImageType();
                 if (type == null) continue;
 
-                progressCallback.accept(String.format("Đang copy ảnh (%d/%d): %s", (i+1), sourceImages.size(), type.getValue()));
+                safeCallback.accept(String.format("Đang copy ảnh (%d/%d): %s", (i+1), sourceImages.size(), type.getValue()));
 
                 String imageUrl = null;
                 if (type == ImageType.PRIMARY) {
@@ -72,7 +79,7 @@ public class CopyMetadataUseCase {
                 }
 
                 if (imageUrl == null) {
-                    progressCallback.accept("Bỏ qua ảnh: không thể tạo URL.");
+                    safeCallback.accept("Bỏ qua ảnh: không thể tạo URL.");
                     continue;
                 }
 
@@ -80,10 +87,10 @@ public class CopyMetadataUseCase {
 
                 embyRepo.uploadImage(destinationItemId, type, downloadedImg.bytes, downloadedImg.mediaType);
             }
-            progressCallback.accept("Sao chép ảnh hoàn tất!");
+            safeCallback.accept("Sao chép ảnh hoàn tất!");
 
         } catch (Exception e) {
-            progressCallback.accept("LỖI khi sao chép ảnh: " + e.getMessage());
+            safeCallback.accept("LỖI khi sao chép ảnh: " + e.getMessage());
             e.printStackTrace();
         }
     }
