@@ -76,6 +76,7 @@ public class TagStrategy implements IMetadataStrategy {
     @Override
     public void clearSpecific(IEmbyRepository repo, String tagName) {
         List<BaseItemDto> listItems = repo.getItemsByTagName(tagName);
+        System.out.println("Size of list item: " + listItems.size());
         if (listItems == null) return;
 
         for (BaseItemDto stub : listItems) {

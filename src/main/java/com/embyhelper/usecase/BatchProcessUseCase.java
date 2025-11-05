@@ -6,7 +6,11 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -104,6 +108,13 @@ public class BatchProcessUseCase {
         String fileName = itemInfo.getFileName();
         if(fileName != null && !fileName.isEmpty()) {
             String name = fileName.substring(0, fileName.lastIndexOf('.'));
+
+            // 2. Loại bỏ domain (ví dụ: "abc.com@XYZ-123" -> "XYZ-123")
+            String[] parts = name.split("@", 2);
+            if (parts.length > 1) {
+                name = parts[1];
+            }
+
             String newName = normalizeFileName(name);
 
             if (newName.isEmpty()) {
@@ -202,9 +213,41 @@ public class BatchProcessUseCase {
                     while ((line = reader.readLine()) != null) response.append(line);
 
                     JSONObject jsonResponse = new JSONObject(response.toString());
-                    String dataValue = jsonResponse.optString("data", null);
-                    if (dataValue != null && !dataValue.equals("null")) {
-                        return OffsetDateTime.parse(dataValue);
+
+                    // API trả về 200 OK, nhưng kiểm tra 'code' bên trong JSON
+                    if (jsonResponse.optInt("code") != 200) {
+                        // Trường hợp API trả 200 nhưng báo lỗi logic (ví dụ 404 lồng)
+                        System.err.println("API setDateRelease trả về HTTP 200 nhưng code nội dung là: " + jsonResponse.optInt("code"));
+                        return null;
+                    }
+
+                    // Lấy đối tượng "data"
+                    JSONObject dataObject = jsonResponse.optJSONObject("data");
+
+                    if (dataObject != null) {
+                        // Lấy chuỗi "releaseDate" từ đối tượng "data"
+                        String releaseDateString = dataObject.optString("releaseDate", null);
+
+                        if (releaseDateString != null && !releaseDateString.isEmpty() && !releaseDateString.equals("null")) {
+                            try {
+                                // Bước 1: Thử parse trực tiếp.
+                                // Ưu tiên cách này nếu API trả về định dạng ISO 8601
+                                // (ví dụ: "2025-11-04T00:00:00+07:00")
+                                return OffsetDateTime.parse(releaseDateString);
+                            } catch (DateTimeParseException e1) {
+                                // Bước 2: Thử parse định dạng "yyyy-MM-dd HH:mm:ss.S" như trong ví dụ
+                                try {
+                                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+                                    LocalDateTime ldt = LocalDateTime.parse(releaseDateString, formatter);
+                                    // Giả định múi giờ là UTC vì không có thông tin offset
+                                    return ldt.atOffset(ZoneOffset.UTC);
+                                } catch (DateTimeParseException e2) {
+                                    // Cả 2 cách đều thất bại
+                                    System.err.println("Không thể parse releaseDate (cả 2 định dạng): " + releaseDateString + " - " + e2.getMessage());
+                                    return null;
+                                }
+                            }
+                        }
                     }
                 }
             }
