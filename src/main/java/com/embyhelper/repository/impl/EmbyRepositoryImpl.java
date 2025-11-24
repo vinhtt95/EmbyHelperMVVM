@@ -1267,7 +1267,7 @@ public class EmbyRepositoryImpl implements IEmbyRepository {
                     null,	//parentId
                     null,	//fields (40)
                     null,	//excludeItemTypes
-                    "Movie,Series,Video,Game",	//includeItemTypes (Từ TagService gốc)
+                    null,	//includeItemTypes (Từ TagService gốc)
                     null,	//anyProviderIdEquals
                     null,	//filters
                     null,	//isFavorite
