@@ -33,9 +33,10 @@
         </dependency>
 
         <dependency>
-            <groupId>com.vinhtt95.emby</groupId>
-            <artifactId>eemby-sdk-java</artifactId>
-            <version>${emby.sdk.version}</version>
+            <groupId>media.emby</groupId>
+            <artifactId>embyclient</artifactId>
+            <version>4.9.1.90</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>

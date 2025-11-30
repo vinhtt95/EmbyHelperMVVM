@@ -511,7 +511,7 @@ public class EmbyRepositoryImpl implements IEmbyRepository {
                     null,	//extendedVideoTypes
                     null,	//subtitleCodecs
                     null,	//path
-                    null,	//userId
+                    userId,	//userId
                     null,	//minOfficialRating
                     null,	//isLocked
                     null,	//isPlaceHolder (90)
@@ -740,7 +740,7 @@ public class EmbyRepositoryImpl implements IEmbyRepository {
                     null,	//extendedVideoTypes
                     null,	//subtitleCodecs
                     null,	//path
-                    null,	//userId
+                    userId,	//userId
                     null,	//minOfficialRating
                     null,	//isLocked
                     null,	//isPlaceHolder (90)
@@ -969,7 +969,7 @@ public class EmbyRepositoryImpl implements IEmbyRepository {
                     null,	//extendedVideoTypes
                     null,	//subtitleCodecs
                     null,	//path
-                    null,	//userId
+                    userId,	//userId
                     null,	//minOfficialRating
                     null,	//isLocked
                     null,	//isPlaceHolder (90)
@@ -1198,7 +1198,7 @@ public class EmbyRepositoryImpl implements IEmbyRepository {
                     null,	//extendedVideoTypes
                     null,	//subtitleCodecs
                     null,	//path
-                    null,	//userId
+                    userId,	//userId
                     null,	//minOfficialRating
                     null,	//isLocked
                     null,	//isPlaceHolder (90)
