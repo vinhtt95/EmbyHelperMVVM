@@ -766,110 +766,140 @@ public class EmbyRepositoryImpl implements IEmbyRepository {
     // (Đã sửa lỗi 107 tham số ở phiên trước)
     @Override
     public List<BaseItemDto> getItemsByGenreName(String genreName) {
+
+        // Kiểm tra UserId trước
+        if (this.userId == null) {
+            System.err.println("Lỗi getItemsByGenreName: userId chưa được khởi tạo.");
+            return new ArrayList<>();
+        }
+
+        // BƯỚC 1: Tìm ID của Genre dựa trên tên (để lọc chính xác bằng ID)
+        String targetGenreId = null;
         try {
-            QueryResultBaseItemDto listItems = itemsServiceApi.getItems(
-                    null,	//artistType
-                    null,	//maxOfficialRating
-                    null,	//hasThemeSong
-                    null,	//hasThemeVideo
-                    null,	//hasSubtitles
-                    null,	//hasSpecialFeature
-                    null,	//hasTrailer
-                    null,	//isSpecialSeason
-                    null,	//adjacentTo
-                    null,	//startItemId (10)
-                    null,	//minIndexNumber
-                    null,	//minStartDate
-                    null,	//maxStartDate
-                    null,	//minEndDate
-                    null,	//maxEndDate
-                    null,	//minPlayers
-                    null,	//maxPlayers
-                    null,	//parentIndexNumber
-                    null,	//hasParentalRating
-                    null,	//isHD (20)
-                    null,	//isUnaired
-                    null,	//minCommunityRating
-                    null,	//minCriticRating
-                    null,	//airedDuringSeason
-                    null,	//minPremiereDate
-                    null,	//minDateLastSaved
-                    null,	//minDateLastSavedForUser
-                    null,	//maxPremiereDate
-                    null,	//hasOverview
-                    null,	//hasImdbId (30)
-                    null,	//hasTmdbId
-                    null,	//hasTvdbId
-                    null,	//excludeItemIds
-                    null,	//startIndex
-                    null,	//limit
-                    true,	//recursive (Từ GenresService gốc)
-                    null,	//searchTerm
-                    null,	//sortOrder
-                    null,	//parentId
-                    null,	//fields (40)
-                    null,	//excludeItemTypes
-                    "Movie,Series,Video,Game,MusicAlbum",	//includeItemTypes (Từ GenresService gốc)
-                    null,	//anyProviderIdEquals
-                    null,	//filters
-                    null,	//isFavorite
-                    null,	//isMovie
-                    null,	//isSeries
-                    null,	//isFolder
-                    null,	//isNews
-                    null,	//isKids (50)
-                    null,	//isSports
-                    null,	//isNew
-                    null,	//isPremiere
-                    null,	//isNewOrPremiere
-                    null,	//isRepeat
-                    null,	//projectToMedia
-                    null,	//mediaTypes
-                    null,	//imageTypes
-                    null,	//sortBy
-                    null,	//isPlayed (60)
-                    genreName,	//genres
-                    null,	//officialRatings
-                    null,	//tags
-                    null,	//excludeTags
-                    null,	//years
-                    null,	//enableImages
-                    null,	//enableUserData
-                    null,	//imageTypeLimit
-                    null,	//enableImageTypes
-                    null,	//person (70)
-                    null,	//personIds
-                    null,	//personTypes
-                    null,	//studios
-                    null,	//studioIds
-                    null,	//artists
-                    null,	//artistIds
-                    null,	//albums
-                    null,	//ids
-                    null,	//videoTypes
-                    null,	//containers (80)
-                    null,	//audioCodecs
-                    null,	//audioLayouts
-                    null,	//videoCodecs
-                    null,	//extendedVideoTypes
-                    null,	//subtitleCodecs
-                    null,	//path
-                    null,	//userId
-                    null,	//minOfficialRating
-                    null,	//isLocked
-                    null,	//isPlaceHolder (90)
-                    null,	//hasOfficialRating
-                    null,	//groupItemsIntoCollections
-                    null,	//is3D
-                    null,	//seriesStatus
-                    null,	//nameStartsWithOrGreater
-                    null,	//artistStartsWithOrGreater
-                    null,	//albumArtistStartsWithOrGreater
-                    null,	//nameStartsWith
-                    null	//nameLessThan
+            List<BaseItemDto> allGenres = getGenres(); // Tận dụng hàm getGenres có sẵn
+            if (allGenres != null) {
+                for (BaseItemDto g : allGenres) {
+                    if (g.getName() != null && g.getName().equalsIgnoreCase(genreName)) {
+                        targetGenreId = g.getId();
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Cảnh báo: Không thể lookup Genre ID, sẽ fallback dùng tên. Lỗi: " + e.getMessage());
+        }
+
+        // 2. Gọi API (Dùng ItemsServiceApi nhưng có truyền UserId để vào chế độ UserLibrary)
+        try {
+            // Lưu ý: Bạn cần kiểm tra thứ tự tham số trong IDE của bạn vì hàm này có hơn 100 tham số.
+            // Dưới đây là vị trí logic dựa trên SDK chuẩn.
+
+            String genreIdsParam = targetGenreId; // Ưu tiên dùng ID
+            String genresParam = (targetGenreId == null) ? genreName : null; // Fallback dùng tên nếu ko tìm thấy ID
+
+            QueryResultBaseItemDto result = itemsServiceApi.getItems(
+                    null,   // artistType
+                    null,   // maxOfficialRating
+                    null,   // hasThemeSong
+                    null,   // hasThemeVideo
+                    null,   // hasSubtitles
+                    null,   // hasSpecialFeature
+                    null,   // hasTrailer
+                    null,   // isSpecialSeason
+                    null,   // adjacentTo
+                    null,   // startItemId
+                    null,   // minIndexNumber
+                    null,   // minStartDate
+                    null,   // maxStartDate
+                    null,   // minEndDate
+                    null,   // maxEndDate
+                    null,   // minPlayers
+                    null,   // maxPlayers
+                    null,   // parentIndexNumber
+                    null,   // hasParentalRating
+                    null,   // isHD
+                    null,   // isUnaired
+                    null,   // minCommunityRating
+                    null,   // minCriticRating
+                    null,   // airedDuringSeason
+                    null,   // minPremiereDate
+                    null,   // minDateLastSaved
+                    null,   // minDateLastSavedForUser
+                    null,   // maxPremiereDate
+                    null,   // hasOverview
+                    null,   // hasImdbId
+                    null,   // hasTmdbId
+                    null,   // hasTvdbId
+                    null,   // excludeItemIds
+                    null,   // startIndex
+                    null,   // limit
+                    true,   // recursive: QUAN TRỌNG - Quét toàn bộ thư viện con
+                    null,   // searchTerm
+                    "SortName",   // sortOrder: Sắp xếp theo tên
+                    null,   // parentId
+                    null,   // fields
+                    null,   // excludeItemTypes
+                    "Movie,Series,Video,Game", // includeItemTypes
+                    null,   // anyProviderIdEquals
+                    null,   // filters
+                    null,   // isFavorite
+                    null,   // isMovie
+                    null,   // isSeries
+                    null,   // isFolder
+                    null,   // isNews
+                    null,   // isKids
+                    null,   // isSports
+                    null,   // isNew
+                    null,   // isPremiere
+                    null,   // isNewOrPremiere
+                    null,   // isRepeat
+                    null,   // projectToMedia
+                    "Video", // mediaTypes: Chỉ lấy Video
+                    null,   // imageTypes
+                    null,   // sortBy
+                    null,   // isPlayed
+                    genresParam, // genres: (Để null nếu đã có ID)
+                    null,   // officialRatings
+                    null,   // tags
+                    null,   // excludeTags
+                    null,   // years
+                    null,   // enableImages
+                    null,   // enableUserData
+                    null,   // imageTypeLimit
+                    null,   // enableImageTypes
+                    null,   // person
+                    null,   // personIds
+                    null,   // personTypes
+                    null,   // studios
+                    null,   // studioIds
+                    null,   // artists
+                    null,   // artistIds
+                    null,   // albums
+                    null,   // ids
+                    null,   // videoTypes
+                    null,   // containers
+                    null,   // audioCodecs
+                    null,   // audioLayouts
+                    null,   // videoCodecs
+                    null,   // extendedVideoTypes
+                    null,   // subtitleCodecs
+                    null,   // path
+                    userId, // userId: QUAN TRỌNG - Biến call này thành UserLibrary query
+                    null,   // minOfficialRating
+                    null,   // isLocked
+                    null,   // isPlaceHolder
+                    null,   // hasOfficialRating
+                    null,   // groupItemsIntoCollections
+                    null,   // is3D
+                    null,   // seriesStatus
+                    null,   // nameStartsWithOrGreater
+                    null,   // artistStartsWithOrGreater
+                    null,   // albumArtistStartsWithOrGreater
+                    null,   // nameStartsWith
+                    null    // nameLessThan
             );
-            if (listItems != null && listItems.getItems() != null) {
-                return listItems.getItems();
+            if (result != null && result.getItems() != null) {
+                return result.getItems();
             }
         } catch (Exception e) {
             System.err.println("Lỗi getItemsByGenreName: " + e.getMessage());
