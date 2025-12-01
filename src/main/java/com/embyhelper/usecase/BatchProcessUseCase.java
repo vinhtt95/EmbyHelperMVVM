@@ -151,6 +151,7 @@ public class BatchProcessUseCase {
 
             if (releaseDate != null) {
                 itemInfo.setPremiereDate(releaseDate);
+                itemInfo.setProductionYear(releaseDate.getYear());
                 isUpdate = true;
                 System.out.println("Đã set PremiereDate: " + releaseDate + " cho item: " + itemInfo.getName());
             }
