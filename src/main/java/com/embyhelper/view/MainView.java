@@ -19,6 +19,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.util.StringConverter;
+import javafx.beans.binding.Bindings;
 import embyclient.model.BaseItemDto;
 import javafx.scene.control.cell.PropertyValueFactory;
 
@@ -78,6 +79,7 @@ public class MainView {
 
     @FXML private Button btnRunCopyAllMetadata; // <-- THÊM MỚI (Yêu cầu 3)
     @FXML private Button btnRunCopyMetadata; // (Yêu cầu 4)
+    @FXML private Label lblSourceItemList;
 
     /**
      * SỬA LỖI: Hàm initialize() bây giờ rỗng.
@@ -181,6 +183,12 @@ public class MainView {
         // 1. Source List View
         // (SỬA ĐỔI) Bind vào danh sách đã lọc (Yêu cầu 1 & 2)
         sourceItemsTableView.setItems(batchViewModel.getFilteredSourceItemsList());
+        lblSourceItemList.textProperty().bind(Bindings.createStringBinding(() -> {
+            int count = batchViewModel.getFilteredSourceItemsList().size();
+            String baseText = mainViewModel.getBundle().getString("label.sourceItemList");
+            return baseText + " (" + count + ")";
+        }, Bindings.size(batchViewModel.getFilteredSourceItemsList())));
+
 
         // Bind item được chọn (View -> ViewModel)
         sourceItemsTableView.getSelectionModel().selectedItemProperty().addListener(
@@ -197,6 +205,14 @@ public class MainView {
             int backdrops = (item.getBackdropImageTags() != null) ? item.getBackdropImageTags().size() : 0;
             return new SimpleStringProperty(primary + " / " + backdrops);
         });
+
+        colSourcePath.prefWidthProperty().bind(
+                sourceItemsTableView.widthProperty()
+                        .subtract(colSourceId.widthProperty())
+                        .subtract(colSourceOriginalTitle.widthProperty())
+                        .subtract(colSourceImages.widthProperty())
+                        .subtract(20) // Trừ hao cho thanh cuộn dọc
+        );
 
         // 2. Destination Table View
         destinationItemsTableView.setItems(batchViewModel.getDestinationItemsList());
@@ -216,6 +232,14 @@ public class MainView {
             int backdrops = (item.getBackdropImageTags() != null) ? item.getBackdropImageTags().size() : 0;
             return new SimpleStringProperty(primary + " / " + backdrops);
         });
+
+        colDestPath.prefWidthProperty().bind(
+                destinationItemsTableView.widthProperty()
+                        .subtract(colDestId.widthProperty())
+                        .subtract(colDestOriginalTitle.widthProperty())
+                        .subtract(colDestImages.widthProperty())
+                        .subtract(20)
+        );
 
         // 3. Button "Copy" (1-1) (Yêu cầu 4)
         // Vô hiệu hóa nếu chưa chọn đủ 2 item

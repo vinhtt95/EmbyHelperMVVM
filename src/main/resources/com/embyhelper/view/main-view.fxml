@@ -76,9 +76,9 @@
                                     </content>
                                 </TitledPane>
 
-                                <TitledPane animated="false" text="%pane.copyMetadata.title" VBox.vgrow="ALWAYS">
+                                <TitledPane animated="false" text="%pane.copyMetadata.title" maxHeight="Infinity" VBox.vgrow="ALWAYS">
                                     <content>
-                                        <VBox spacing="8.0" VBox.vgrow="ALWAYS">
+                                        <VBox spacing="8.0">
                                             <Label text="%label.copySourceParentId" />
                                             <HBox spacing="10.0">
                                                 <TextField fx:id="txtCopySourceParentID" promptText="%prompt.copySourceParentId" HBox.hgrow="ALWAYS" />
@@ -87,22 +87,24 @@
 
                                             <TextField fx:id="txtSourceFilter" promptText="%prompt.sourceFilter" />
 
-                                            <Label text="%label.sourceItemList" />
-                                            <TableView fx:id="sourceItemsTableView" prefHeight="200.0" VBox.vgrow="ALWAYS">
+                                            <Label fx:id="lblSourceItemList" text="%label.sourceItemList" />
+
+                                            <TableView fx:id="sourceItemsTableView" VBox.vgrow="ALWAYS">
                                                 <columns>
                                                     <TableColumn fx:id="colSourceId" prefWidth="250.0" text="%table.col.id" />
                                                     <TableColumn fx:id="colSourceOriginalTitle" prefWidth="150.0" text="%table.col.originalTitle" />
-                                                    <TableColumn fx:id="colSourceImages" prefWidth="80.0" text="%table.col.images" />
+                                                    <TableColumn fx:id="colSourceImages" prefWidth="100.0" text="%table.col.images" />
                                                     <TableColumn fx:id="colSourcePath" prefWidth="300.0" text="%table.col.path" />
                                                 </columns>
                                             </TableView>
 
                                             <Label text="%label.destinationItemList" />
-                                            <TableView fx:id="destinationItemsTableView" prefHeight="200.0" VBox.vgrow="ALWAYS">
+
+                                            <TableView fx:id="destinationItemsTableView" prefHeight="150.0" VBox.vgrow="NEVER">
                                                 <columns>
                                                     <TableColumn fx:id="colDestId" prefWidth="250.0" text="%table.col.id" />
                                                     <TableColumn fx:id="colDestOriginalTitle" prefWidth="150.0" text="%table.col.originalTitle" />
-                                                    <TableColumn fx:id="colDestImages" prefWidth="80.0" text="%table.col.images" />
+                                                    <TableColumn fx:id="colDestImages" prefWidth="100.0" text="%table.col.images" />
                                                     <TableColumn fx:id="colDestPath" prefWidth="300.0" text="%table.col.path" />
                                                 </columns>
                                             </TableView>
