@@ -35,7 +35,7 @@
         <dependency>
             <groupId>media.emby</groupId>
             <artifactId>embyclient</artifactId>
-            <version>4.9.1.90</version>
+            <version>4.9.1.90.1</version>
             <scope>compile</scope>
         </dependency>
 

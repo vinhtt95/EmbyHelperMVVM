@@ -797,106 +797,107 @@ public class EmbyRepositoryImpl implements IEmbyRepository {
             String genreIdsParam = targetGenreId; // Ưu tiên dùng ID
             String genresParam = (targetGenreId == null) ? genreName : null; // Fallback dùng tên nếu ko tìm thấy ID
 
-            QueryResultBaseItemDto result = itemsServiceApi.getItems(
-                    null,   // artistType
-                    null,   // maxOfficialRating
-                    null,   // hasThemeSong
-                    null,   // hasThemeVideo
-                    null,   // hasSubtitles
-                    null,   // hasSpecialFeature
-                    null,   // hasTrailer
-                    null,   // isSpecialSeason
-                    null,   // adjacentTo
-                    null,   // startItemId
-                    null,   // minIndexNumber
-                    null,   // minStartDate
-                    null,   // maxStartDate
-                    null,   // minEndDate
-                    null,   // maxEndDate
-                    null,   // minPlayers
-                    null,   // maxPlayers
-                    null,   // parentIndexNumber
-                    null,   // hasParentalRating
-                    null,   // isHD
-                    null,   // isUnaired
-                    null,   // minCommunityRating
-                    null,   // minCriticRating
-                    null,   // airedDuringSeason
-                    null,   // minPremiereDate
-                    null,   // minDateLastSaved
-                    null,   // minDateLastSavedForUser
-                    null,   // maxPremiereDate
-                    null,   // hasOverview
-                    null,   // hasImdbId
-                    null,   // hasTmdbId
-                    null,   // hasTvdbId
-                    null,   // excludeItemIds
-                    null,   // startIndex
-                    null,   // limit
-                    true,   // recursive: QUAN TRỌNG - Quét toàn bộ thư viện con
-                    null,   // searchTerm
-                    "SortName",   // sortOrder: Sắp xếp theo tên
-                    null,   // parentId
-                    null,   // fields
-                    null,   // excludeItemTypes
-                    "Movie,Series,Video,Game", // includeItemTypes
-                    null,   // anyProviderIdEquals
-                    null,   // filters
-                    null,   // isFavorite
-                    null,   // isMovie
-                    null,   // isSeries
-                    null,   // isFolder
-                    null,   // isNews
-                    null,   // isKids
-                    null,   // isSports
-                    null,   // isNew
-                    null,   // isPremiere
-                    null,   // isNewOrPremiere
-                    null,   // isRepeat
-                    null,   // projectToMedia
-                    "Video", // mediaTypes: Chỉ lấy Video
-                    null,   // imageTypes
-                    null,   // sortBy
-                    null,   // isPlayed
-                    genresParam, // genres: (Để null nếu đã có ID)
-                    null,   // officialRatings
-                    null,   // tags
-                    null,   // excludeTags
-                    null,   // years
-                    null,   // enableImages
-                    null,   // enableUserData
-                    null,   // imageTypeLimit
-                    null,   // enableImageTypes
-                    null,   // person
-                    null,   // personIds
-                    null,   // personTypes
-                    null,   // studios
-                    null,   // studioIds
-                    null,   // artists
-                    null,   // artistIds
-                    null,   // albums
-                    null,   // ids
-                    null,   // videoTypes
-                    null,   // containers
-                    null,   // audioCodecs
-                    null,   // audioLayouts
-                    null,   // videoCodecs
-                    null,   // extendedVideoTypes
-                    null,   // subtitleCodecs
-                    null,   // path
-                    userId, // userId: QUAN TRỌNG - Biến call này thành UserLibrary query
-                    null,   // minOfficialRating
-                    null,   // isLocked
-                    null,   // isPlaceHolder
-                    null,   // hasOfficialRating
-                    null,   // groupItemsIntoCollections
-                    null,   // is3D
-                    null,   // seriesStatus
-                    null,   // nameStartsWithOrGreater
-                    null,   // artistStartsWithOrGreater
-                    null,   // albumArtistStartsWithOrGreater
-                    null,   // nameStartsWith
-                    null    // nameLessThan
+            QueryResultBaseItemDto result = itemsServiceApi.getUsersByUseridItems(
+                    userId,	//userId
+                    null,	//artistType
+                    null,	//maxOfficialRating
+                    null,	//hasThemeSong
+                    null,	//hasThemeVideo
+                    null,	//hasSubtitles
+                    null,	//hasSpecialFeature
+                    null,	//hasTrailer
+                    null,	//isSpecialSeason
+                    null,	//adjacentTo
+                    null,	//startItemId
+                    null,	//minIndexNumber
+                    null,	//minStartDate
+                    null,	//maxStartDate
+                    null,	//minEndDate
+                    null,	//maxEndDate
+                    null,	//minPlayers
+                    null,	//maxPlayers
+                    null,	//parentIndexNumber
+                    null,	//hasParentalRating
+                    null,	//isHD
+                    null,	//isUnaired
+                    null,	//minCommunityRating
+                    null,	//minCriticRating
+                    null,	//airedDuringSeason
+                    null,	//minPremiereDate
+                    null,	//minDateLastSaved
+                    null,	//minDateLastSavedForUser
+                    null,	//maxPremiereDate
+                    null,	//hasOverview
+                    null,	//hasImdbId
+                    null,	//hasTmdbId
+                    null,	//hasTvdbId
+                    null,	//excludeItemIds
+                    null,	//startIndex
+                    null,	//limit
+                    true,	//recursive
+                    null,	//searchTerm
+                    null,	//sortOrder
+                    null,	//parentId
+                    null,	//fields
+                    null,	//excludeItemTypes
+                    null,	//includeItemTypes
+                    null,	//anyProviderIdEquals
+                    null,	//filters
+                    null,	//isFavorite
+                    null,	//isMovie
+                    null,	//isSeries
+                    null,	//isFolder
+                    null,	//isNews
+                    null,	//isKids
+                    null,	//isSports
+                    null,	//isNew
+                    null,	//isPremiere
+                    null,	//isNewOrPremiere
+                    null,	//isRepeat
+                    null,	//projectToMedia
+                    "Video",	//mediaTypes
+                    null,	//imageTypes
+                    null,	//sortBy
+                    null,	//isPlayed
+                    genresParam,	//genres
+                    genreIdsParam,	//genreIds
+                    null,	//officialRatings
+                    null,	//tags
+                    null,	//excludeTags
+                    null,	//years
+                    null,	//enableImages
+                    null,	//enableUserData
+                    null,	//imageTypeLimit
+                    null,	//enableImageTypes
+                    null,	//person
+                    null,	//personIds
+                    null,	//personTypes
+                    null,	//studios
+                    null,	//studioIds
+                    null,	//artists
+                    null,	//artistIds
+                    null,	//albums
+                    null,	//ids
+                    null,	//videoTypes
+                    null,	//containers
+                    null,	//audioCodecs
+                    null,	//audioLayouts
+                    null,	//videoCodecs
+                    null,	//extendedVideoTypes
+                    null,	//subtitleCodecs
+                    null,	//path
+                    null,	//minOfficialRating
+                    null,	//isLocked
+                    null,	//isPlaceHolder
+                    null,	//hasOfficialRating
+                    null,	//groupItemsIntoCollections
+                    null,	//is3D
+                    null,	//seriesStatus
+                    null,	//nameStartsWithOrGreater
+                    null,	//artistStartsWithOrGreater
+                    null,	//albumArtistStartsWithOrGreater
+                    null,	//nameStartsWith
+                    null	//nameLessThan
             );
             if (result != null && result.getItems() != null) {
                 return result.getItems();

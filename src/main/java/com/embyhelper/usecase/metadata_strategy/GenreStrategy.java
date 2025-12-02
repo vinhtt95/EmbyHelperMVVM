@@ -83,6 +83,7 @@ public class GenreStrategy implements IMetadataStrategy {
 
             boolean removed = item.getGenreItems().removeIf(g -> g.getName() != null && g.getName().equals(genreName));
             if (removed) {
+                System.out.println("Item update: "+ item.getOriginalTitle());
                 repo.updateItemInfo(item.getId(), item);
             }
         }
@@ -99,6 +100,7 @@ public class GenreStrategy implements IMetadataStrategy {
 
             boolean removed = item.getGenreItems().removeIf(g -> g.getName() != null && g.getName().equals(oldName));
             if (removed) {
+                System.out.println("Item update: "+ item.getOriginalTitle());
                 NameLongIdPair newGenre = new NameLongIdPair();
                 newGenre.setName(newSerializedName); // newName là tên đã serialize (có thể là JSON)
                 item.getGenreItems().add(newGenre);
