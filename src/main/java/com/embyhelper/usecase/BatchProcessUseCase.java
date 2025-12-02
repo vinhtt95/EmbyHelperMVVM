@@ -2,6 +2,7 @@ package com.embyhelper.usecase;
 
 import com.embyhelper.repository.IEmbyRepository;
 import embyclient.model.BaseItemDto;
+import embyclient.model.BaseItemPerson; // THÊM IMPORT MỚI
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -11,6 +12,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList; // THÊM IMPORT MỚI
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -33,6 +35,18 @@ public class BatchProcessUseCase {
         public int successCount = 0;
         public int skippedCount = 0;
         public int errorCount = 0;
+    }
+
+    /**
+     * Lớp mới để chứa cả release date và actress name.
+     */
+    public static class DateAndActress {
+        public OffsetDateTime releaseDate = null;
+        public String actressName = null;
+        public DateAndActress(OffsetDateTime releaseDate, String actressName) {
+            this.releaseDate = releaseDate;
+            this.actressName = actressName;
+        }
     }
 
     public BatchProcessResult execute(String parentId, Consumer<String> progressCallback) {
@@ -138,24 +152,55 @@ public class BatchProcessUseCase {
             }
         }
 
-        // 2. Xử lý Premiere Date
-        if (itemInfo.getPremiereDate() == null) {
-            OffsetDateTime releaseDate = null;
-            if (originalTitle != null && !originalTitle.isEmpty()) {
-                releaseDate = setDateRelease(originalTitle); // Thử lấy theo OriginalTitle
-            }
+        // 2. Xử lý Premiere Date và Actress Name
+        DateAndActress result = new DateAndActress(null, null);
 
-            if (releaseDate == null) { // Nếu thất bại, thử lấy theo Item Name
-                releaseDate = setDateRelease(itemInfo.getName());
-            }
+        if (originalTitle != null && !originalTitle.isEmpty()) {
+            result = setDateRelease(originalTitle); // Thử lấy theo OriginalTitle
+        }
 
-            if (releaseDate != null) {
-                itemInfo.setPremiereDate(releaseDate);
-                itemInfo.setProductionYear(releaseDate.getYear());
+        if (result.releaseDate == null && result.actressName == null) {
+            // Nếu thất bại, thử lấy theo Item Name
+            result = setDateRelease(itemInfo.getName());
+        }
+
+        // Cập nhật PremiereDate
+        if (itemInfo.getPremiereDate() == null && result.releaseDate != null) {
+            itemInfo.setPremiereDate(result.releaseDate);
+            // itemInfo.setProductionYear(result.releaseDate.getYear()); // Sẽ xử lý ở bước 3
+            isUpdate = true;
+            System.out.println("Đã set PremiereDate: " + result.releaseDate + " cho item: " + itemInfo.getName());
+        }
+
+        // Cập nhật ActressName
+        if (result.actressName != null && !result.actressName.isEmpty()) {
+            // Tạo BaseItemPerson mới
+            BaseItemPerson newPerson = new BaseItemPerson();
+            newPerson.setName(result.actressName);
+            newPerson.setRole("Actress"); // Giả định Role là "Actress"
+
+            if (itemInfo.getPeople() != null) {
+                // Kiểm tra xem diễn viên này đã có trong danh sách chưa
+                DateAndActress finalResult = result;
+                boolean exists = itemInfo.getPeople().stream()
+                        .anyMatch(p -> p.getName() != null && finalResult.actressName.equalsIgnoreCase(p.getName()));
+
+                if (!exists) {
+                    // Thêm vào danh sách nếu chưa có
+                    itemInfo.getPeople().add(newPerson);
+                    isUpdate = true;
+                    System.out.println("Đã thêm Actress: " + result.actressName + " cho item: " + itemInfo.getName());
+                }
+            } else {
+                // Nếu list People là null, khởi tạo list mới và thêm vào
+                List<BaseItemPerson> people = new ArrayList<>();
+                people.add(newPerson);
+                itemInfo.setPeople(people);
                 isUpdate = true;
-                System.out.println("Đã set PremiereDate: " + releaseDate + " cho item: " + itemInfo.getName());
+                System.out.println("Đã thêm Actress (khởi tạo list): " + result.actressName + " cho item: " + itemInfo.getName());
             }
         }
+
 
         // 3. Xử lý Production Year
         Integer currentYear = itemInfo.getProductionYear();
@@ -194,8 +239,8 @@ public class BatchProcessUseCase {
         return ""; // Trả về rỗng nếu không khớp
     }
 
-    private OffsetDateTime setDateRelease(String code) {
-        if (code == null || code.isEmpty()) return null;
+    private DateAndActress setDateRelease(String code) { // THAY ĐỔI KIỂU TRẢ VỀ
+        if (code == null || code.isEmpty()) return new DateAndActress(null, null); // THAY ĐỔI
         // API này là của bạn, tôi giữ nguyên
         String apiUrl = "http://localhost:8081/movies/movie/date/?movieCode=" + code;
         HttpURLConnection connection = null;
@@ -214,12 +259,14 @@ public class BatchProcessUseCase {
                     while ((line = reader.readLine()) != null) response.append(line);
 
                     JSONObject jsonResponse = new JSONObject(response.toString());
+                    OffsetDateTime releaseDate = null;
+                    String actressName = null; // BIẾN MỚI
 
                     // API trả về 200 OK, nhưng kiểm tra 'code' bên trong JSON
                     if (jsonResponse.optInt("code") != 200) {
                         // Trường hợp API trả 200 nhưng báo lỗi logic (ví dụ 404 lồng)
                         System.err.println("API setDateRelease trả về HTTP 200 nhưng code nội dung là: " + jsonResponse.optInt("code"));
-                        return null;
+                        return new DateAndActress(null, null); // THAY ĐỔI
                     }
 
                     // Lấy đối tượng "data"
@@ -228,28 +275,29 @@ public class BatchProcessUseCase {
                     if (dataObject != null) {
                         // Lấy chuỗi "releaseDate" từ đối tượng "data"
                         String releaseDateString = dataObject.optString("releaseDate", null);
+                        // Lấy chuỗi "actressName" từ đối tượng "data"
+                        actressName = dataObject.optString("actressName", null); // THÊM DÒNG MỚI
 
                         if (releaseDateString != null && !releaseDateString.isEmpty() && !releaseDateString.equals("null")) {
                             try {
                                 // Bước 1: Thử parse trực tiếp.
-                                // Ưu tiên cách này nếu API trả về định dạng ISO 8601
-                                // (ví dụ: "2025-11-04T00:00:00+07:00")
-                                return OffsetDateTime.parse(releaseDateString);
+                                releaseDate = OffsetDateTime.parse(releaseDateString);
                             } catch (DateTimeParseException e1) {
-                                // Bước 2: Thử parse định dạng "yyyy-MM-dd HH:mm:ss.S" như trong ví dụ
+                                // Bước 2: Thử parse định dạng "yyyy-MM-dd HH:mm:ss.S"
                                 try {
                                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
                                     LocalDateTime ldt = LocalDateTime.parse(releaseDateString, formatter);
                                     // Giả định múi giờ là UTC vì không có thông tin offset
-                                    return ldt.atOffset(ZoneOffset.UTC);
+                                    releaseDate = ldt.atOffset(ZoneOffset.UTC);
                                 } catch (DateTimeParseException e2) {
                                     // Cả 2 cách đều thất bại
                                     System.err.println("Không thể parse releaseDate (cả 2 định dạng): " + releaseDateString + " - " + e2.getMessage());
-                                    return null;
+                                    // releaseDate vẫn là null
                                 }
                             }
                         }
                     }
+                    return new DateAndActress(releaseDate, actressName);
                 }
             }
         } catch (Exception e) {
@@ -258,6 +306,6 @@ public class BatchProcessUseCase {
         } finally {
             if (connection != null) connection.disconnect();
         }
-        return null;
+        return new DateAndActress(null, null);
     }
 }
